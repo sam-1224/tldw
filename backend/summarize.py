@@ -145,18 +145,30 @@ def build_timestamped_text(segments: list[dict]) -> tuple[str, bool]:
 SYSTEM_PROMPT = (
     "You are a precise video summariser. You are given a YouTube transcript "
     "where each line is prefixed with a [timestamp]. Produce a faithful, "
-    "skimmable summary. Anchor each key point to the timestamp where that "
-    "topic begins, copied from the transcript. Never invent timestamps or "
-    "facts. Respond with ONLY a JSON object, no markdown, no preamble, in "
-    "exactly this shape:\n"
+    "skimmable, genuinely useful summary. Anchor each key point to the "
+    "timestamp where that topic begins, copied from the transcript. Never "
+    "invent timestamps or facts. Respond with ONLY a JSON object, no "
+    "markdown, no preamble, in exactly this shape:\n"
     "{\n"
-    '  "tldr": "one or two sentence gist",\n'
-    '  "key_points": [\n'
-    '    {"timestamp": "m:ss", "point": "what is covered here"}\n'
+    '  "tldr": "two or three sentence gist of the whole video",\n'
+    '  "breakdown": [\n'
+    '    "a short paragraph of narrative summary",\n'
+    '    "another short paragraph"\n'
     "  ],\n"
+    '  "key_points": [\n'
+    '    {"timestamp": "m:ss", "point": "one-line headline of this moment",\n'
+    '     "detail": "one or two sentences of what is actually said or shown"}\n'
+    "  ],\n"
+    '  "takeaways": ["something the viewer should remember or act on"],\n'
+    '  "worth_watching": {"score": 7, "reason": "one line on who should '
+    'watch and what to skip"},\n'
     '  "topics": ["short tag", "short tag"]\n'
     "}\n"
-    "Aim for 4-8 key points. Keep each point to one sentence."
+    "Rules: breakdown is 2-4 paragraphs covering the video's actual "
+    "argument or content, not topic labels. Aim for 5-10 key_points; the "
+    "point is a headline, the detail adds substance. takeaways is 3-5 "
+    "bullets of distilled insight. worth_watching.score is 1-10 judging "
+    "information density and originality of the video itself."
 )
 
 
@@ -185,7 +197,7 @@ def _call_anthropic(prompt: str, key: str, model: str) -> str:
         },
         json={
             "model": model,
-            "max_tokens": 1500,
+            "max_tokens": 3000,
             "system": SYSTEM_PROMPT,
             "messages": [{"role": "user", "content": prompt}],
         },

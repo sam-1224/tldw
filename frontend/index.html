@@ -225,6 +225,32 @@
   .stamp:hover { border-color: var(--marigold); transform: translateY(-1px); }
   .point p { margin: 0; font-size: 16px; color: var(--ink); }
 
+  .breakdown { margin-bottom: 30px; }
+  .breakdown p { margin: 0 0 14px; font-size: 16px; color: var(--ink); line-height: 1.6; }
+  .point .pd { display: block; margin-top: 4px; font-size: 14px; color: var(--ink-soft); }
+  .takeaways { margin: 0 0 30px; padding: 0 0 0 2px; list-style: none; }
+  .takeaways li {
+    position: relative; padding: 8px 0 8px 26px; font-size: 15.5px;
+    border-top: 1px solid var(--line);
+  }
+  .takeaways li:last-child { border-bottom: 1px solid var(--line); }
+  .takeaways li::before {
+    content: "→"; position: absolute; left: 2px; color: var(--marigold-deep);
+    font-family: var(--mono);
+  }
+  .worth {
+    display: flex; gap: 16px; align-items: center; margin-bottom: 30px;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .worth-score {
+    flex: none; width: 54px; height: 54px; border-radius: 50%;
+    display: grid; place-items: center; font-family: var(--display);
+    font-weight: 800; font-size: 19px; color: var(--ink);
+    background: var(--marigold-wash); border: 2px solid var(--marigold);
+  }
+  .worth-reason { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+
   .topics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 34px; }
   .topic {
     font-family: var(--mono); font-size: 12px; color: var(--ink-soft);
@@ -384,8 +410,26 @@
         <p id="tldr"></p>
       </div>
 
+      <div id="breakdownWrap" style="display:none">
+        <p class="section-label">The breakdown</p>
+        <div class="breakdown" id="breakdown"></div>
+      </div>
+
       <p class="section-label">Key moments</p>
       <div class="points" id="points"></div>
+
+      <div id="takeawaysWrap" style="display:none">
+        <p class="section-label">Takeaways</p>
+        <ul class="takeaways" id="takeaways"></ul>
+      </div>
+
+      <div class="worth" id="worth" style="display:none">
+        <span class="worth-score" id="worthScore"></span>
+        <div>
+          <p class="section-label" style="margin:0 0 2px">Worth watching?</p>
+          <p class="worth-reason" id="worthReason"></p>
+        </div>
+      </div>
 
       <div class="topics" id="topics"></div>
 
@@ -729,6 +773,10 @@
       a.className = "stamp"; a.href = watchUrl(sec); a.target = "_blank"; a.rel = "noopener";
       a.textContent = p.timestamp || "—";
       const txt = document.createElement("p"); txt.textContent = p.point || "";
+      if (p.detail) {
+        const pd = document.createElement("span"); pd.className = "pd"; pd.textContent = p.detail;
+        txt.appendChild(pd);
+      }
       row.appendChild(a); row.appendChild(txt); pointsEl.appendChild(row);
       // marker
       if (dur > 0) {
@@ -740,6 +788,32 @@
         setTimeout(() => tick.classList.add("show"), 120 + idx * 90);
       }
     });
+
+    // breakdown paragraphs
+    const bwrap = $("breakdownWrap"), bEl = $("breakdown"); bEl.innerHTML = "";
+    const paras = Array.isArray(s.breakdown) ? s.breakdown.filter(Boolean) : [];
+    paras.forEach((t) => {
+      const el = document.createElement("p"); el.textContent = t; bEl.appendChild(el);
+    });
+    bwrap.style.display = paras.length ? "" : "none";
+
+    // takeaways
+    const twrap = $("takeawaysWrap"), tEl = $("takeaways"); tEl.innerHTML = "";
+    const takes = Array.isArray(s.takeaways) ? s.takeaways.filter(Boolean) : [];
+    takes.forEach((t) => {
+      const li = document.createElement("li"); li.textContent = t; tEl.appendChild(li);
+    });
+    twrap.style.display = takes.length ? "" : "none";
+
+    // worth watching
+    const w = s.worth_watching;
+    if (w && typeof w.score === "number") {
+      $("worthScore").textContent = `${w.score}/10`;
+      $("worthReason").textContent = w.reason || "";
+      $("worth").style.display = "";
+    } else {
+      $("worth").style.display = "none";
+    }
 
     // topics
     const topicsEl = $("topics"); topicsEl.innerHTML = "";

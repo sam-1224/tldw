@@ -78,6 +78,14 @@ def test_custom_without_base_url_errors():
         summarize(SEGMENTS, "custom", "", model="llama3")
 
 
+def test_prompt_demands_rich_contract():
+    from summarize import SYSTEM_PROMPT
+
+    for field in ("tldr", "breakdown", "key_points", "detail", "takeaways",
+                  "worth_watching", "topics"):
+        assert field in SYSTEM_PROMPT
+
+
 def test_unknown_provider():
     with pytest.raises(SummarizeError, match="Unknown provider"):
         summarize(SEGMENTS, "nope", "key")
