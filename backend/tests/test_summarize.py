@@ -123,6 +123,30 @@ def test_long_video_truncation_boundary():
     )[0]
 
 
+@respx.mock
+def test_groq_transcript_truncated_to_free_tier_budget():
+    """Groq free tier is ~6k tokens/min — prompt must respect its max_chars."""
+    route = respx.post("https://api.groq.com/openai/v1/chat/completions").mock(
+        return_value=Response(200, json=oai_body())
+    )
+    big = [{"text": "word " * 20, "start": i * 3.0, "duration": 3.0}
+           for i in range(1000)]
+    result = summarize(big, "groq", "k")
+    sent = route.calls.last.request.content.decode()
+    assert len(sent) < 25_000  # 18k transcript + prompt/JSON overhead
+    assert result["truncated"] is True
+
+
+@respx.mock
+def test_413_maps_to_friendly_error():
+    respx.post("https://api.groq.com/openai/v1/chat/completions").mock(
+        return_value=Response(413, json={})
+    )
+    with pytest.raises(SummarizeError, match="too large") as e:
+        summarize(SEGMENTS, "groq", "k")
+    assert e.value.status == 413
+
+
 def test_unknown_provider():
     with pytest.raises(SummarizeError, match="Unknown provider"):
         summarize(SEGMENTS, "nope", "key")

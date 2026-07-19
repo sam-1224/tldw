@@ -41,6 +41,9 @@ PROVIDERS: dict[str, dict] = {
         "label": "Groq (fast open models)",
         "kind": "oai",
         "base": "https://api.groq.com/openai/v1",
+        # Free tier allows ~6k tokens/min; keep prompt ~4.5k tokens so the
+        # request fits (rest is system prompt + completion headroom).
+        "max_chars": 18_000,
         "default_model": "llama-3.3-70b-versatile",
         "models": [
             "llama-3.3-70b-versatile",
@@ -129,15 +132,17 @@ def _format_timestamp(seconds: float) -> str:
     return f"{h}:{m:02d}:{s:02d}" if h else f"{m}:{s:02d}"
 
 
-def build_timestamped_text(segments: list[dict]) -> tuple[str, bool]:
+def build_timestamped_text(
+    segments: list[dict], max_chars: int = MAX_CHARS
+) -> tuple[str, bool]:
     """Turn segments into '[mm:ss] text' lines the model can anchor points to."""
     lines = []
     for seg in segments:
         lines.append(f"[{_format_timestamp(seg['start'])}] {seg['text']}")
     text = "\n".join(lines)
     truncated = False
-    if len(text) > MAX_CHARS:
-        text = text[:MAX_CHARS]
+    if len(text) > max_chars:
+        text = text[:max_chars]
         truncated = True
     return text, truncated
 
@@ -238,6 +243,10 @@ def _call_openai_compatible(
             {"role": "user", "content": prompt},
         ],
         "temperature": 0.3,
+        # Cap the completion: providers like Groq count RESERVED completion
+        # tokens against rate limits, and an unset max lets them assume the
+        # model maximum (instant 413 on free tiers).
+        "max_tokens": 3000,
     }
     # Local servers (Ollama/LM Studio) don't all accept response_format.
     if json_mode:
@@ -274,6 +283,11 @@ def _raise_for_llm(resp: httpx.Response, provider: str) -> None:
         raise SummarizeError(
             f"{provider} rate limit hit. Try again in a moment.", status=429
         )
+    if resp.status_code == 413:
+        raise SummarizeError(
+            f"Transcript too large for {provider}'s free tier. Pick another "
+            "model or let Auto route it.", status=413
+        )
     if resp.status_code >= 400:
         raise SummarizeError(
             f"{provider} request failed ({resp.status_code}). "
@@ -301,17 +315,10 @@ def summarize(
     if not model:
         raise SummarizeError(f"Provider '{provider}' needs a model name.")
 
-    text, truncated = build_timestamped_text(segments)
-    prompt = (
-        f"Transcript{' (truncated to keep cost down)' if truncated else ''}:\n\n"
-        f"{text}"
-    )
-
     kind = cfg["kind"]
-
     system = _system_prompt(summary_lang)
 
-    def _call() -> str:
+    def _call(prompt: str) -> str:
         if kind == "anthropic":
             return _call_anthropic(prompt, api_key, model, system)
         if kind == "gemini":
@@ -324,15 +331,40 @@ def summarize(
             json_mode=provider != "custom",
         )
 
-    # Models occasionally emit broken JSON; one retry fixes most of it.
-    for attempt in range(2):
-        raw = _call()
+    # Adaptive retries:
+    # - 413 (request too large): per-model TPM limits vary and chars/token
+    #   depends on the language -> halve the transcript and try again.
+    # - broken JSON from the model -> one straight retry.
+    max_chars = cfg.get("max_chars", MAX_CHARS)
+    result = truncated = None
+    for shrink in range(3):
+        text, truncated = build_timestamped_text(segments, max_chars=max_chars)
+        prompt = (
+            f"Transcript{' (truncated to keep cost down)' if truncated else ''}"
+            f":\n\n{text}"
+        )
         try:
-            result = _extract_json(raw)
+            for attempt in range(2):
+                raw = _call(prompt)
+                try:
+                    result = _extract_json(raw)
+                    break
+                except SummarizeError:
+                    if attempt:
+                        raise
             break
-        except SummarizeError:
-            if attempt:
-                raise
+        except SummarizeError as exc:
+            if exc.status == 413 and shrink < 2:
+                max_chars //= 2
+                continue
+            raise
+    # Weaker models sometimes drop contract fields — normalise so consumers
+    # never KeyError and the UI just hides empty sections.
+    result.setdefault("tldr", "")
+    result.setdefault("key_points", [])
+    result.setdefault("breakdown", [])
+    result.setdefault("takeaways", [])
+    result.setdefault("topics", [])
     result["truncated"] = truncated
     result["model"] = model
     result["provider"] = provider

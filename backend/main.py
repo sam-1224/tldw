@@ -171,8 +171,8 @@ def do_summarize(req: SummarizeRequest):
             break
         except SummarizeError as exc:
             last_error = exc
-            if exc.status == 429 and len(attempts) > 1:
-                continue  # rate-limited on free tier -> try next in chain
+            if exc.status in (429, 413) and len(attempts) > 1:
+                continue  # rate-limited / too large -> try next in chain
             return JSONResponse({"error": str(exc)}, status_code=502)
     if summary is None:
         return JSONResponse({"error": str(last_error)}, status_code=502)
