@@ -51,8 +51,13 @@ def extract_video_id(url: str) -> str | None:
     return None
 
 
-def _from_youtube_library(video_id: str, lang: str = "en") -> list[dict]:
-    """Free path. Raises if the library is missing or no captions exist."""
+def _from_youtube_library(video_id: str, lang: str = "en") -> tuple[list[dict], str]:
+    """Free path. Returns (segments, language_code).
+
+    Prefers the requested language, then English, then ANY available caption
+    track — a Hindi-only video must not read as "no captions"; the LLM
+    translates downstream.
+    """
     if not _HAS_YTA:
         raise TranscriptError("youtube-transcript-api is not installed")
 
@@ -61,7 +66,20 @@ def _from_youtube_library(video_id: str, lang: str = "en") -> list[dict]:
         # FetchedTranscript; .to_raw_data() gives the classic list of
         # {"text", "start", "duration"} dicts the rest of this code expects.
         ytt_api = YouTubeTranscriptApi()
-        raw = ytt_api.fetch(video_id, languages=[lang, "en", "en-US"]).to_raw_data()
+        try:
+            fetched = ytt_api.fetch(video_id, languages=[lang, "en", "en-US"])
+        except NoTranscriptFound:
+            # Nothing in the preferred languages — take whatever exists
+            # (TranscriptList iterates manually-created tracks first).
+            transcripts = iter(ytt_api.list(video_id))
+            first = next(transcripts, None)
+            if first is None:
+                raise TranscriptError("no_captions")
+            fetched = first.fetch()
+        raw = fetched.to_raw_data()
+        language = getattr(fetched, "language_code", lang) or lang
+    except TranscriptError:
+        raise
     except (TranscriptsDisabled, NoTranscriptFound):
         raise TranscriptError("no_captions")
     except VideoUnavailable:
@@ -77,7 +95,7 @@ def _from_youtube_library(video_id: str, lang: str = "en") -> list[dict]:
         }
         for seg in raw
         if seg.get("text", "").strip()
-    ]
+    ], language
 
 
 def _from_supadata(url: str, key: str, lang: str = "en") -> list[dict]:
@@ -127,6 +145,7 @@ def get_transcript(
           "video_id": str,
           "segments": [...],
           "source": "youtube-transcript-api" | "supadata",
+          "language": str,   # BCP-47-ish code of the caption track
         }
     Raises TranscriptError if every available source fails.
     """
@@ -136,16 +155,17 @@ def get_transcript(
 
     # 1. Free library first.
     try:
-        segments = _from_youtube_library(video_id, lang=lang)
+        segments, language = _from_youtube_library(video_id, lang=lang)
         return {"video_id": video_id, "segments": segments,
-                "source": "youtube-transcript-api"}
+                "source": "youtube-transcript-api", "language": language}
     except TranscriptError as free_err:
         free_reason = str(free_err)
 
     # 2. Supadata fallback (only if a key was supplied).
     if supadata_key:
         segments = _from_supadata(url, supadata_key, lang=lang)
-        return {"video_id": video_id, "segments": segments, "source": "supadata"}
+        return {"video_id": video_id, "segments": segments,
+                "source": "supadata", "language": lang}
 
     # Nothing worked and no fallback available.
     if free_reason == "no_captions":

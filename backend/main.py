@@ -98,6 +98,18 @@ def index():
     return JSONResponse({"error": "frontend not found"}, status_code=404)
 
 
+def build_llm_attempts(
+    provider: str, llm_key: str | None, base_url: str | None
+) -> list[tuple[str, str, str | None]]:
+    """(provider, key, base_url) attempts — the shared seam for /api/summarize
+    and future endpoints (/api/ask). BYOK pins one attempt; free mode walks
+    the env-keyed chain so rate limits fail over."""
+    if llm_key or base_url:
+        return [(provider, llm_key or "", base_url)]
+    chain = [provider] + [p for p in FREE_CHAIN if p != provider]
+    return [(p, _env_key(p), None) for p in chain if _env_key(p)]
+
+
 NO_KEY_MESSAGE = (
     "This server has no free-tier key configured and you didn't add your own. "
     "Add a key in settings — free ones take ~2 minutes: Gemini "
@@ -115,18 +127,9 @@ def do_summarize(req: SummarizeRequest):
         )
 
     provider = (req.provider or _default_provider()).lower()
-
-    # Build (provider, key, base_url) attempts.
-    if req.llm_key or req.base_url:
-        # BYOK (or local custom server): exactly what the user asked for.
-        attempts = [(provider, req.llm_key or "", req.base_url)]
-    else:
-        # Free mode: requested provider first if the server has its key,
-        # then the rest of the chain. Failover on rate limits only.
-        chain = [provider] + [p for p in FREE_CHAIN if p != provider]
-        attempts = [(p, _env_key(p), None) for p in chain if _env_key(p)]
-        if not attempts:
-            return JSONResponse({"error": NO_KEY_MESSAGE}, status_code=400)
+    attempts = build_llm_attempts(provider, req.llm_key, req.base_url)
+    if not attempts:
+        return JSONResponse({"error": NO_KEY_MESSAGE}, status_code=400)
 
     supadata_key = req.supadata_key or os.getenv("SUPADATA_API_KEY") or None
 
@@ -165,10 +168,12 @@ def do_summarize(req: SummarizeRequest):
         "video_id": video_id,
         "duration_seconds": duration,
         "transcript_source": tr["source"],
+        "transcript_language": tr.get("language", "en"),
         "title": meta["title"],
         "author": meta["author"],
         "thumbnail": meta["thumbnail"],
         "summary": summary,
+        "segments": segments,
     }
 
 

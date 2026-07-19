@@ -11,6 +11,7 @@ client = TestClient(main.app)
 TRANSCRIPT = {
     "segments": [{"text": "hi", "start": 0.0, "duration": 2.0}],
     "source": "captions",
+    "language": "hi",
 }
 SUMMARY = {"tldr": "t", "key_points": [], "topics": [], "truncated": False}
 OEMBED = {"title": "T", "author": "A", "thumbnail": ""}
@@ -85,6 +86,10 @@ def test_keyless_uses_env_key(monkeypatch):
     r = client.post("/api/summarize", json={"url": "https://youtu.be/dQw4w9WgXcQ"})
     assert r.status_code == 200
     assert seen == {"provider": "gemini", "key": "env-gem"}
+    body = r.json()
+    # Stage 1 contract: real segments + language travel to the client
+    assert body["segments"] == TRANSCRIPT["segments"]
+    assert body["transcript_language"] == "hi"
 
 
 def test_free_mode_fails_over_on_429(monkeypatch):

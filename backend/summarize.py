@@ -168,7 +168,9 @@ SYSTEM_PROMPT = (
     "argument or content, not topic labels. Aim for 5-10 key_points; the "
     "point is a headline, the detail adds substance. takeaways is 3-5 "
     "bullets of distilled insight. worth_watching.score is 1-10 judging "
-    "information density and originality of the video itself."
+    "information density and originality of the video itself. The transcript "
+    "may be in any language — always write every field of the summary in "
+    "English, translating faithfully."
 )
 
 
@@ -180,11 +182,15 @@ def _extract_json(text: str) -> dict:
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        # Last resort: grab the outermost { ... }.
-        m = re.search(r"\{.*\}", text, re.DOTALL)
-        if m:
+        pass
+    # Last resort: grab the outermost { ... }.
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if m:
+        try:
             return json.loads(m.group(0))
-        raise SummarizeError("Model did not return valid JSON.")
+        except json.JSONDecodeError:
+            pass
+    raise SummarizeError("Model did not return valid JSON.")
 
 
 def _call_anthropic(prompt: str, key: str, model: str) -> str:
@@ -287,20 +293,29 @@ def summarize(
     )
 
     kind = cfg["kind"]
-    if kind == "anthropic":
-        raw = _call_anthropic(prompt, api_key, model)
-    elif kind == "gemini":
-        raw = _call_gemini(prompt, api_key, model)
-    else:  # OpenAI-compatible
+
+    def _call() -> str:
+        if kind == "anthropic":
+            return _call_anthropic(prompt, api_key, model)
+        if kind == "gemini":
+            return _call_gemini(prompt, api_key, model)
         base = base_url or cfg["base"]
         if not base:
             raise SummarizeError("Custom provider needs a base URL.")
-        raw = _call_openai_compatible(
+        return _call_openai_compatible(
             prompt, api_key, model, base.rstrip("/"),
             provider, json_mode=provider != "custom",
         )
 
-    result = _extract_json(raw)
+    # Models occasionally emit broken JSON; one retry fixes most of it.
+    for attempt in range(2):
+        raw = _call()
+        try:
+            result = _extract_json(raw)
+            break
+        except SummarizeError:
+            if attempt:
+                raise
     result["truncated"] = truncated
     result["model"] = model
     result["provider"] = provider
