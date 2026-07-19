@@ -296,27 +296,23 @@ def _raise_for_llm(resp: httpx.Response, provider: str) -> None:
         )
 
 
-def summarize(
-    segments: list[dict],
+def _complete(
     provider: str,
+    cfg: dict,
     api_key: str,
-    model: str | None = None,
-    base_url: str | None = None,
-    summary_lang: str | None = None,
-) -> dict:
-    provider = (provider or "").lower()
-    cfg = PROVIDERS.get(provider)
-    if cfg is None:
-        raise SummarizeError(f"Unknown provider '{provider}'.")
-    if not api_key and not cfg.get("key_optional"):
-        raise SummarizeError("No LLM API key provided.")
+    model: str,
+    base_url: str | None,
+    system: str,
+    segments: list[dict],
+    build_prompt,
+) -> tuple[dict, bool]:
+    """Shared LLM completion with adaptive retries. Returns (json, truncated).
 
-    model = model or cfg["default_model"]
-    if not model:
-        raise SummarizeError(f"Provider '{provider}' needs a model name.")
-
+    - 413 (request too large): per-model TPM limits vary and chars/token
+      depends on the language -> halve the transcript and try again.
+    - broken JSON from the model -> one straight retry.
+    """
     kind = cfg["kind"]
-    system = _system_prompt(summary_lang)
 
     def _call(prompt: str) -> str:
         if kind == "anthropic":
@@ -331,33 +327,62 @@ def summarize(
             json_mode=provider != "custom",
         )
 
-    # Adaptive retries:
-    # - 413 (request too large): per-model TPM limits vary and chars/token
-    #   depends on the language -> halve the transcript and try again.
-    # - broken JSON from the model -> one straight retry.
     max_chars = cfg.get("max_chars", MAX_CHARS)
-    result = truncated = None
+    last_exc: SummarizeError | None = None
     for shrink in range(3):
         text, truncated = build_timestamped_text(segments, max_chars=max_chars)
-        prompt = (
-            f"Transcript{' (truncated to keep cost down)' if truncated else ''}"
-            f":\n\n{text}"
-        )
+        prompt = build_prompt(text, truncated)
         try:
             for attempt in range(2):
                 raw = _call(prompt)
                 try:
-                    result = _extract_json(raw)
-                    break
-                except SummarizeError:
+                    return _extract_json(raw), truncated
+                except SummarizeError as exc:
+                    last_exc = exc
                     if attempt:
                         raise
-            break
         except SummarizeError as exc:
+            last_exc = exc
             if exc.status == 413 and shrink < 2:
                 max_chars //= 2
                 continue
             raise
+    raise last_exc or SummarizeError("LLM call failed.")
+
+
+def _resolve(provider: str, api_key: str, model: str | None) -> tuple[str, dict, str]:
+    provider = (provider or "").lower()
+    cfg = PROVIDERS.get(provider)
+    if cfg is None:
+        raise SummarizeError(f"Unknown provider '{provider}'.")
+    if not api_key and not cfg.get("key_optional"):
+        raise SummarizeError("No LLM API key provided.")
+    model = model or cfg["default_model"]
+    if not model:
+        raise SummarizeError(f"Provider '{provider}' needs a model name.")
+    return provider, cfg, model
+
+
+def summarize(
+    segments: list[dict],
+    provider: str,
+    api_key: str,
+    model: str | None = None,
+    base_url: str | None = None,
+    summary_lang: str | None = None,
+) -> dict:
+    provider, cfg, model = _resolve(provider, api_key, model)
+    system = _system_prompt(summary_lang)
+
+    def build_prompt(text: str, truncated: bool) -> str:
+        return (
+            f"Transcript{' (truncated to keep cost down)' if truncated else ''}"
+            f":\n\n{text}"
+        )
+
+    result, truncated = _complete(
+        provider, cfg, api_key, model, base_url, system, segments, build_prompt
+    )
     # Weaker models sometimes drop contract fields — normalise so consumers
     # never KeyError and the UI just hides empty sections.
     result.setdefault("tldr", "")
