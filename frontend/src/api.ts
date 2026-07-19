@@ -77,3 +77,37 @@ export async function summarize(body: SummarizeBody): Promise<SummarizeResult> {
   if (!res.ok) throw new Error(data.error || "Unknown error.");
   return data;
 }
+
+export interface Citation {
+  timestamp: string;
+  segment_index: number;
+}
+
+export interface AskAnswer {
+  answer: string;
+  citations: Citation[];
+  model?: string;
+  provider?: string;
+}
+
+export interface AskBody {
+  question: string;
+  segments: Segment[];
+  history: { role: "user" | "assistant"; content: string }[];
+  provider?: string;
+  llm_key?: string | null;
+  model?: string | null;
+  base_url?: string | null;
+  summary_lang?: string | null;
+}
+
+export async function ask(body: AskBody): Promise<AskAnswer> {
+  const res = await fetch("/api/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Unknown error.");
+  return data;
+}

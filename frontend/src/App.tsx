@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AppConfig, SummarizeBody, SummarizeResult, fetchConfig, summarize } from "./api";
+import { AppConfig, AskBody, SummarizeBody, SummarizeResult, ask as apiAsk, fetchConfig, summarize } from "./api";
+import { AskFn } from "./QADock";
 import { Settings, initialTheme, loadSettings, persistTheme, saveSettings } from "./settings";
 import SettingsDrawer from "./SettingsDrawer";
 import Results from "./Results";
@@ -69,6 +70,67 @@ export default function App() {
       : "— add a key in settings";
   }, [settings, config]);
 
+  // Fills provider/key/model/base_url from settings onto any request body.
+  // Returns false (and shows an error + opens settings) when a key is missing.
+  function applyProviderFields(
+    body: { provider?: string; llm_key?: string | null; model?: string | null; base_url?: string | null },
+  ): boolean {
+    if (settings.mode === "free") {
+      if (!config?.free_tier_available) {
+        setError({
+          title: "No model key yet",
+          msg: "This server has no free tier configured. Open settings and add your own API key — free ones take ~2 minutes.",
+        });
+        setDrawerOpen(true);
+        return false;
+      }
+      if (settings.free_choice && settings.free_choice !== "auto") {
+        const [p, m] = settings.free_choice.split("::");
+        body.provider = p;
+        body.model = m;
+      }
+      return true;
+    }
+    const pcfg = config?.providers.find((x) => x.id === settings.provider);
+    const needsKey = !(pcfg && pcfg.key_optional);
+    if (needsKey && !settings.llm_key) {
+      setError({
+        title: "No model key yet",
+        msg: "Open settings (top right) and add an API key for your chosen provider.",
+      });
+      setDrawerOpen(true);
+      return false;
+    }
+    body.provider = settings.provider;
+    body.llm_key = settings.llm_key || null;
+    body.model = settings.model || settings.model_select || null;
+    if (pcfg?.needs_base_url) {
+      if (!settings.base_url) {
+        setError({
+          title: "No base URL",
+          msg: "The custom provider needs the base URL of your local server, e.g. http://localhost:11434/v1.",
+        });
+        setDrawerOpen(true);
+        return false;
+      }
+      body.base_url = settings.base_url;
+    }
+    return true;
+  }
+
+  // Passed to the Q&A dock. Throws on a missing key so the dock shows it inline.
+  const askQuestion: AskFn = async (question, history) => {
+    if (!result) throw new Error("Summarize a video first.");
+    const body: AskBody = {
+      question,
+      segments: result.segments,
+      history,
+      summary_lang: settings.summary_lang || null,
+    };
+    if (!applyProviderFields(body)) throw new Error("Add an API key in settings first.");
+    return apiAsk(body);
+  };
+
   async function run() {
     setError(null);
     setResult(null);
@@ -83,46 +145,7 @@ export default function App() {
       supadata_key: settings.supadata_key || null,
       summary_lang: settings.summary_lang || null,
     };
-    if (settings.mode === "free") {
-      if (!config?.free_tier_available) {
-        setError({
-          title: "No model key yet",
-          msg: "This server has no free tier configured. Open settings and add your own API key — free ones take ~2 minutes.",
-        });
-        setDrawerOpen(true);
-        return;
-      }
-      if (settings.free_choice && settings.free_choice !== "auto") {
-        const [p, m] = settings.free_choice.split("::");
-        body.provider = p;
-        body.model = m;
-      }
-    } else {
-      const pcfg = config?.providers.find((x) => x.id === settings.provider);
-      const needsKey = !(pcfg && pcfg.key_optional);
-      if (needsKey && !settings.llm_key) {
-        setError({
-          title: "No model key yet",
-          msg: "Open settings (top right) and add an API key for your chosen provider.",
-        });
-        setDrawerOpen(true);
-        return;
-      }
-      body.provider = settings.provider;
-      body.llm_key = settings.llm_key || null;
-      body.model = settings.model || settings.model_select || null;
-      if (pcfg?.needs_base_url) {
-        if (!settings.base_url) {
-          setError({
-            title: "No base URL",
-            msg: "The custom provider needs the base URL of your local server, e.g. http://localhost:11434/v1.",
-          });
-          setDrawerOpen(true);
-          return;
-        }
-        body.base_url = settings.base_url;
-      }
-    }
+    if (!applyProviderFields(body)) return;
 
     setLoading(true);
     setLoadMsg(LOAD_MSGS[0]);
@@ -222,7 +245,7 @@ export default function App() {
         </div>
       )}
 
-      <div ref={resultsRef}>{result && <Results d={result} />}</div>
+      <div ref={resultsRef}>{result && <Results d={result} askFn={askQuestion} />}</div>
 
       <footer>
         Open source · BYOK ·{" "}

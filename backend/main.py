@@ -36,7 +36,7 @@ from transcript import (
     extract_video_id,
     TranscriptError,
 )
-from summarize import summarize, SummarizeError, PROVIDERS, SUMMARY_LANGUAGES
+from summarize import ask, summarize, SummarizeError, PROVIDERS, SUMMARY_LANGUAGES
 
 app = FastAPI(title="TL;DW", description="Too long; didn't watch.")
 
@@ -190,6 +190,51 @@ def do_summarize(req: SummarizeRequest):
         "summary": summary,
         "segments": segments,
     }
+
+
+class AskRequest(BaseModel):
+    question: str
+    segments: list[dict]
+    history: list[dict] = []
+    provider: str | None = None
+    llm_key: str | None = None
+    model: str | None = None
+    base_url: str | None = None
+    summary_lang: str | None = None
+
+
+@app.post("/api/ask")
+def do_ask(req: AskRequest):
+    """Q&A over a transcript the client already holds (stateless server)."""
+    question = (req.question or "").strip()
+    if not question:
+        return JSONResponse({"error": "Ask a question first."}, status_code=400)
+    if not req.segments:
+        return JSONResponse(
+            {"error": "No transcript to answer from — summarize a video first."},
+            status_code=400,
+        )
+
+    provider = (req.provider or _default_provider()).lower()
+    attempts = build_llm_attempts(provider, req.llm_key, req.base_url)
+    if not attempts:
+        return JSONResponse({"error": NO_KEY_MESSAGE}, status_code=400)
+
+    last_error: SummarizeError | None = None
+    for attempt_provider, key, base_url in attempts:
+        try:
+            model = req.model if attempt_provider == provider else None
+            return ask(
+                req.segments, question, attempt_provider, key,
+                history=req.history, model=model, base_url=base_url,
+                summary_lang=req.summary_lang,
+            )
+        except SummarizeError as exc:
+            last_error = exc
+            if exc.status in (429, 413) and len(attempts) > 1:
+                continue
+            return JSONResponse({"error": str(exc)}, status_code=502)
+    return JSONResponse({"error": str(last_error)}, status_code=502)
 
 
 if __name__ == "__main__":

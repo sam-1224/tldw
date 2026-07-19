@@ -394,3 +394,82 @@ def summarize(
     result["model"] = model
     result["provider"] = provider
     return result
+
+
+ASK_PROMPT = (
+    "You answer questions about a YouTube video using ONLY its transcript, "
+    "given below with a [timestamp] on each line. Rules: base every claim on "
+    "the transcript; cite the timestamp where each supporting moment occurs, "
+    "copied exactly from the transcript; if the transcript does not cover "
+    "the question, say the video doesn't cover that and cite nothing. Never "
+    "invent timestamps or facts. Write the answer in {output_language}. "
+    "Respond with ONLY a JSON object, no markdown, in exactly this shape:\n"
+    "{\n"
+    '  "answer": "the answer, plain text",\n'
+    '  "citations": [{"timestamp": "m:ss"}]\n'
+    "}"
+)
+
+
+def _timestamp_to_seconds(stamp: str) -> float:
+    try:
+        nums = [float(p) for p in str(stamp).split(":")]
+    except ValueError:
+        return -1.0
+    if len(nums) == 3:
+        return nums[0] * 3600 + nums[1] * 60 + nums[2]
+    if len(nums) == 2:
+        return nums[0] * 60 + nums[1]
+    return nums[0] if nums else -1.0
+
+
+def _segment_index_for(seconds: float, segments: list[dict]) -> int | None:
+    """Index of the segment whose start is closest below the timestamp."""
+    if seconds < 0 or not segments:
+        return None
+    best = 0
+    for i, seg in enumerate(segments):
+        if seg["start"] <= seconds:
+            best = i
+        else:
+            break
+    return best
+
+
+def ask(
+    segments: list[dict],
+    question: str,
+    provider: str,
+    api_key: str,
+    history: list[dict] | None = None,
+    model: str | None = None,
+    base_url: str | None = None,
+    summary_lang: str | None = None,
+) -> dict:
+    provider, cfg, model = _resolve(provider, api_key, model)
+    system = ASK_PROMPT.replace("{output_language}", summary_lang or "English")
+
+    convo = ""
+    for turn in (history or [])[-6:]:  # keep prompts bounded
+        role = "Q" if turn.get("role") == "user" else "A"
+        convo += f"{role}: {turn.get('content', '')}\n"
+
+    def build_prompt(text: str, truncated: bool) -> str:
+        note = " (truncated)" if truncated else ""
+        prior = f"\n\nPrevious conversation:\n{convo}" if convo else ""
+        return f"Transcript{note}:\n\n{text}{prior}\n\nQuestion: {question}"
+
+    result, _ = _complete(
+        provider, cfg, api_key, model, base_url, system, segments, build_prompt
+    )
+
+    answer = str(result.get("answer", "")).strip()
+    citations = []
+    for c in result.get("citations", []) or []:
+        stamp = (c or {}).get("timestamp", "")
+        sec = _timestamp_to_seconds(stamp)
+        idx = _segment_index_for(sec, segments)
+        if stamp and idx is not None:
+            citations.append({"timestamp": stamp, "segment_index": idx})
+    return {"answer": answer, "citations": citations,
+            "model": model, "provider": provider}

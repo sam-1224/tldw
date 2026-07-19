@@ -46,12 +46,22 @@ const RESULT = {
   },
 };
 
+const ASK_ANSWER = {
+  answer: "They explain the TCP handshake around the twelve minute mark.",
+  citations: [{ timestamp: "40:00", segment_index: 300 }],
+  model: "gemini-flash-latest",
+  provider: "gemini",
+};
+
 async function mockApi(page: Page) {
   await page.route("**/api/config", (route) =>
     route.fulfill({ json: CONFIG }),
   );
   await page.route("**/api/summarize", (route) =>
     route.fulfill({ json: RESULT }),
+  );
+  await page.route("**/api/ask", (route) =>
+    route.fulfill({ json: ASK_ANSWER }),
   );
 }
 
@@ -88,6 +98,30 @@ test("mocked summarize renders all bento cards", async ({ page }) => {
   await expect(tick).toHaveAttribute("href", /t=600s/);
   // landing collapsed
   await expect(page.locator(".hero.compact")).toBeVisible();
+});
+
+test("ask the video renders answer with clickable citation", async ({ page }) => {
+  await mockApi(page);
+  await page.goto("/");
+  await summarize(page);
+  await expect(page.locator(".qa")).toBeVisible();
+
+  // suggested-question chips seeded from key points
+  await expect(page.locator(".qa-chip").first()).toBeVisible();
+
+  await page.getByPlaceholder(/ask a question/i).fill("What about the handshake?");
+  await page.getByRole("button", { name: "Ask", exact: true }).click();
+
+  // user turn + assistant answer both appear
+  await expect(page.locator(".qa-user")).toContainText("handshake");
+  await expect(page.locator(".qa-assistant")).toContainText("TCP handshake");
+
+  // citation is a deep link into the video
+  const cite = page.locator(".qa-cite").first();
+  await expect(cite).toHaveAttribute("href", /t=2400s/);
+  // hovering a citation flashes a tick on the scrubber
+  await cite.hover();
+  await expect(page.locator(".timeline .tick.flash")).toBeVisible();
 });
 
 test("settings persist across reload", async ({ page }) => {

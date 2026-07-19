@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { SummarizeResult } from "./api";
 import { fmt, toSeconds } from "./settings";
+import QADock, { AskFn } from "./QADock";
 
 const CHUNK = 200;
 
@@ -83,12 +84,19 @@ function Tick({ href, left, title, delay, reduced }: {
   );
 }
 
-export default function Results({ d }: { d: SummarizeResult }) {
+export default function Results({ d, askFn }: { d: SummarizeResult; askFn: AskFn }) {
   const s = d.summary;
   const dur = d.duration_seconds || 0;
   const reduced = useReducedMotion() ?? false;
+  const [flashSec, setFlashSec] = useState<number | null>(null);
   const watchUrl = (sec: number) =>
     `https://www.youtube.com/watch?v=${d.video_id}&t=${Math.floor(sec)}s`;
+
+  // a citation click/hover drops a temporary white tick on the scrubber
+  function flashCitation(sec: number) {
+    setFlashSec(sec);
+    window.setTimeout(() => setFlashSec((cur) => (cur === sec ? null : cur)), 2000);
+  }
 
   const langTag =
     d.transcript_language && d.transcript_language.toLowerCase().slice(0, 2) !== "en"
@@ -140,6 +148,13 @@ export default function Results({ d }: { d: SummarizeResult }) {
               />
             );
           })}
+        {dur > 0 && flashSec !== null && (
+          <span
+            className="tick flash show"
+            style={{ left: Math.min(98, Math.max(1, (flashSec / dur) * 100)) + "%" }}
+            aria-hidden="true"
+          />
+        )}
       </div>
 
       <div className="bento">
@@ -209,6 +224,10 @@ export default function Results({ d }: { d: SummarizeResult }) {
             )}
           </motion.div>
         )}
+
+        <motion.div {...card("qa")}>
+          <QADock d={d} askFn={askFn} onCite={flashCitation} />
+        </motion.div>
 
         <motion.div {...card("transcript")}>
           <Transcript d={d} />
