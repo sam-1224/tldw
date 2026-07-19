@@ -165,7 +165,7 @@ export default function App() {
         </div>
       </header>
 
-      <section className="hero">
+      <section className={"hero" + (result ? " compact" : "")}>
         <div className="eyebrow">paste a link · skip the watch</div>
         <h1>
           Watch less.<br /><span className="mark">Know more.</span>
@@ -192,7 +192,7 @@ export default function App() {
             <button className="go" onClick={run} disabled={loading}>Summarize</button>
           </div>
           <div className="timeline">
-            <div className="fill" style={{ width: loading ? "70%" : "0%" }} />
+            <div className={"fill" + (loading ? " loading" : "")} style={loading ? undefined : { width: "0%" }} />
           </div>
           <div className="meta-line">
             <span>free transcript · whisper fallback</span>

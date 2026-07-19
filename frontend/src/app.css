@@ -371,3 +371,114 @@
     *, ::after, ::before { animation: none !important; transition: none !important; }
     .scan::after { display: none; }
   }
+
+/* ================= Stage 2 — Highlight OS ================= */
+
+/* --- bento results grid --- */
+.bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas:
+    "tldr tldr moments"
+    "breakdown breakdown moments"
+    "takeaways worth moments"
+    "transcript transcript transcript";
+  gap: 16px;
+  align-items: start;
+}
+.bento-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+}
+.area-tldr { grid-area: tldr; }
+.area-moments { grid-area: moments; }
+.area-breakdown { grid-area: breakdown; }
+.area-takeaways { grid-area: takeaways; }
+.area-worth { grid-area: worth; }
+.area-transcript { grid-area: transcript; }
+
+.bento-card.tldr {
+  background: var(--tldr-bg);
+  color: var(--tldr-ink);
+  box-shadow: var(--shadow-lift), 0 0 40px rgba(242, 163, 15, .25);
+  border-color: transparent;
+  margin-bottom: 0;
+  padding: 24px 26px;
+}
+.bento-card .points { margin-bottom: 0; }
+.bento-card .breakdown { margin-bottom: 0; }
+.bento-card .breakdown p:last-child { margin-bottom: 0; }
+.bento-card .takeaways { margin-bottom: 0; }
+.worth-inner { display: flex; gap: 16px; align-items: center; }
+.bento-card details.transcript { border-top: none; padding-top: 0; }
+
+@media (max-width: 880px) {
+  .bento {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "tldr" "moments" "breakdown" "takeaways" "worth" "transcript";
+  }
+}
+
+/* --- scrubber: styled tooltip on ticks --- */
+.timeline { overflow: visible; }
+.timeline .tick { z-index: 2; }
+.timeline .tick::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%) scale(.9);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 6px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s var(--ease), transform .15s var(--ease);
+}
+.timeline .tick:hover::after,
+.timeline .tick:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* loading progress sweep on the scrubber fill */
+.timeline .fill.loading {
+  width: 90% !important;
+  transition: width 7s cubic-bezier(.1, .6, .2, 1);
+}
+
+/* --- kinetic hero: highlighter swipe on "Know more." --- */
+h1 .mark {
+  background: linear-gradient(transparent 62%, var(--marigold-wash) 62%);
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  animation: hl-swipe .8s var(--ease) .35s forwards;
+}
+@keyframes hl-swipe { to { background-size: 100% 100%; } }
+
+/* --- landing collapses once a summary exists --- */
+.hero { transition: padding .4s var(--ease); }
+.hero.compact { padding: 8px 0 4px; }
+.hero.compact .eyebrow,
+.hero.compact .sub,
+.hero.compact h1 { display: none; }
+.hero.compact + .hint, .hero.compact .hint { display: none; }
+.hero.compact .console { margin-top: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  h1 .mark { animation: none; background-size: 100% 100%; }
+  .timeline .fill.loading { transition: none; }
+}
