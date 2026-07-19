@@ -530,13 +530,16 @@ h1 .mark {
 /* --- glass sticky nav --- */
 header.glass {
   position: sticky;
-  top: 0;
+  top: 12px;
   z-index: 30;
-  padding: 16px 0;
+  padding: 10px 18px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   background: color-mix(in srgb, var(--paper) 62%, transparent);
-  border-bottom: 1px solid var(--hairline, var(--line));
+  border: 1px solid var(--hairline, var(--line));
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  margin-bottom: 6px;
 }
 
 /* --- hero spotlight (aceternity-style) --- */
