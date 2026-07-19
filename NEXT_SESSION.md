@@ -7,8 +7,13 @@ always-true rules and staged roadmap), then this for where we actually are.
 
 ## Where we are (as of 2026-07-19)
 
-Repo: `D:\PROJECTS\tldw\tldw`. GitHub: `sam-1224/tldw` (branch `main`).
+Repo: `D:\PROJECTS\tldw\tldw`. GitHub: `sam-1224/tldw` (**public**).
+`main` = stable, everything working. **Do Stage 2 + feature work on the
+`stage-2-redesign` branch** (already created + pushed); PR into `main` when a
+stage's Definition of Done is green.
 Python 3.13 venv in `backend/.venv`. Node 22. **Docker not installed** (fine).
+
+Start next session with: `git checkout stage-2-redesign`
 
 ### Shipped and verified live
 - **Free-first, zero-friction summaries.** Keyless visitors summarize via
