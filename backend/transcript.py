@@ -1,0 +1,187 @@
+"""
+Transcript fetching.
+
+Strategy (cheapest first):
+  1. youtube-transcript-api  -> free, self-hosted, no key. Works when captions exist.
+  2. Supadata               -> optional fallback. Uses Whisper AI to transcribe
+                               videos that have no captions. Needs a Supadata key.
+
+Both paths are normalised to the same shape:
+    segments = [{"text": str, "start": float_seconds, "duration": float_seconds}, ...]
+"""
+
+from __future__ import annotations
+
+import re
+import httpx
+
+# youtube-transcript-api is optional at import time so the app still boots
+# (and the Supadata path still works) even if it isn't installed.
+try:
+    from youtube_transcript_api import (
+        YouTubeTranscriptApi,
+        TranscriptsDisabled,
+        NoTranscriptFound,
+        VideoUnavailable,
+    )
+    _HAS_YTA = True
+except Exception:  # pragma: no cover
+    _HAS_YTA = False
+
+
+SUPADATA_BASE = "https://api.supadata.ai/v1"
+
+# A handful of URL shapes people actually paste.
+_ID_PATTERNS = [
+    r"(?:v=|/shorts/|youtu\.be/|/embed/|/v/)([0-9A-Za-z_-]{11})",
+    r"^([0-9A-Za-z_-]{11})$",  # bare id
+]
+
+
+class TranscriptError(Exception):
+    """Raised when no transcript could be obtained from any source."""
+
+
+def extract_video_id(url: str) -> str | None:
+    url = (url or "").strip()
+    for pattern in _ID_PATTERNS:
+        m = re.search(pattern, url)
+        if m:
+            return m.group(1)
+    return None
+
+
+def _from_youtube_library(video_id: str, lang: str = "en") -> list[dict]:
+    """Free path. Raises if the library is missing or no captions exist."""
+    if not _HAS_YTA:
+        raise TranscriptError("youtube-transcript-api is not installed")
+
+    try:
+        # youtube-transcript-api 1.x is instance-based. .fetch() returns a
+        # FetchedTranscript; .to_raw_data() gives the classic list of
+        # {"text", "start", "duration"} dicts the rest of this code expects.
+        ytt_api = YouTubeTranscriptApi()
+        raw = ytt_api.fetch(video_id, languages=[lang, "en", "en-US"]).to_raw_data()
+    except (TranscriptsDisabled, NoTranscriptFound):
+        raise TranscriptError("no_captions")
+    except VideoUnavailable:
+        raise TranscriptError("video_unavailable")
+    except Exception as exc:  # IP blocks, network, etc.
+        raise TranscriptError(f"library_failed: {exc}")
+
+    return [
+        {
+            "text": seg["text"],
+            "start": float(seg["start"]),
+            "duration": float(seg.get("duration", 0.0)),
+        }
+        for seg in raw
+        if seg.get("text", "").strip()
+    ]
+
+
+def _from_supadata(url: str, key: str, lang: str = "en") -> list[dict]:
+    """
+    Fallback path. Uses Supadata's universal transcript endpoint with
+    mode=native (1 credit, captions only). If you want AI transcription of
+    uncaptioned videos, drop the mode param — it costs more credits.
+    """
+    resp = httpx.get(
+        f"{SUPADATA_BASE}/transcript",
+        params={"url": url, "text": "false", "lang": lang},
+        headers={"x-api-key": key},
+        timeout=120.0,
+    )
+    if resp.status_code == 401:
+        raise TranscriptError("supadata_bad_key")
+    if resp.status_code >= 400:
+        raise TranscriptError(f"supadata_error_{resp.status_code}")
+
+    data = resp.json()
+    content = data.get("content", [])
+
+    # text=false returns timestamped chunks with offset/duration in ms.
+    segments = []
+    for seg in content:
+        text = seg.get("text", "").strip()
+        if not text:
+            continue
+        segments.append(
+            {
+                "text": text,
+                "start": float(seg.get("offset", 0)) / 1000.0,
+                "duration": float(seg.get("duration", 0)) / 1000.0,
+            }
+        )
+    if not segments:
+        raise TranscriptError("supadata_empty")
+    return segments
+
+
+def get_transcript(
+    url: str, supadata_key: str | None = None, lang: str = "en"
+) -> dict:
+    """
+    Returns:
+        {
+          "video_id": str,
+          "segments": [...],
+          "source": "youtube-transcript-api" | "supadata",
+        }
+    Raises TranscriptError if every available source fails.
+    """
+    video_id = extract_video_id(url)
+    if not video_id:
+        raise TranscriptError("bad_url")
+
+    # 1. Free library first.
+    try:
+        segments = _from_youtube_library(video_id, lang=lang)
+        return {"video_id": video_id, "segments": segments,
+                "source": "youtube-transcript-api"}
+    except TranscriptError as free_err:
+        free_reason = str(free_err)
+
+    # 2. Supadata fallback (only if a key was supplied).
+    if supadata_key:
+        segments = _from_supadata(url, supadata_key, lang=lang)
+        return {"video_id": video_id, "segments": segments, "source": "supadata"}
+
+    # Nothing worked and no fallback available.
+    if free_reason == "no_captions":
+        raise TranscriptError(
+            "This video has captions disabled. Add a Supadata key in settings "
+            "to transcribe it with AI."
+        )
+    raise TranscriptError(
+        f"Couldn't fetch a transcript ({free_reason}). "
+        "Adding a Supadata key in settings enables an AI fallback."
+    )
+
+
+def fetch_oembed(video_id: str) -> dict:
+    """Free, key-less metadata (title, author, thumbnail) via YouTube oEmbed."""
+    try:
+        resp = httpx.get(
+            "https://www.youtube.com/oembed",
+            params={
+                "url": f"https://www.youtube.com/watch?v={video_id}",
+                "format": "json",
+            },
+            timeout=15.0,
+        )
+        if resp.status_code == 200:
+            d = resp.json()
+            return {
+                "title": d.get("title"),
+                "author": d.get("author_name"),
+                "thumbnail": d.get("thumbnail_url")
+                or f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+            }
+    except Exception:
+        pass
+    return {
+        "title": None,
+        "author": None,
+        "thumbnail": f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+    }

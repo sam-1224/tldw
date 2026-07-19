@@ -1,0 +1,10 @@
+# Compatible with Python 3.11 – 3.14.
+# Floors (>=) let pip pick versions that ship prebuilt wheels for your Python.
+# uvloop 0.22.1+ (pulled by uvicorn[standard]) and pydantic-core 2.46+ both
+# publish cp314 wheels, so no source builds are triggered on Python 3.14.
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+httpx>=0.28.0
+pydantic>=2.10.0
+youtube-transcript-api>=1.2.3

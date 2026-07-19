@@ -1,0 +1,87 @@
+{
+  "name": "TL;DW — YouTube Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tldw",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook (POST url)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 300],
+      "webhookId": "tldw-webhook"
+    },
+    {
+      "parameters": {
+        "url": "https://api.supadata.ai/v1/transcript",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "url", "value": "={{ $json.body.url }}" },
+            { "name": "text", "value": "true" },
+            { "name": "mode", "value": "native" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "REPLACE_WITH_SUPADATA_KEY" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "supadata-transcript",
+      "name": "Supadata — get transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer REPLACE_WITH_LLM_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'gpt-4o-mini', messages: [ { role: 'system', content: 'Summarize the transcript into a TL;DR sentence and 5 bullet key points. Be concise.' }, { role: 'user', content: $json.content } ] }) }}",
+        "options": {}
+      },
+      "id": "llm-summarize",
+      "name": "LLM — summarize",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [740, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { summary: $json.choices[0].message.content } }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond with summary",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 300]
+    }
+  ],
+  "connections": {
+    "Webhook (POST url)": { "main": [[{ "node": "Supadata — get transcript", "type": "main", "index": 0 }]] },
+    "Supadata — get transcript": { "main": [[{ "node": "LLM — summarize", "type": "main", "index": 0 }]] },
+    "LLM — summarize": { "main": [[{ "node": "Respond with summary", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "note": "Import via n8n > Workflows > Import from File. Replace REPLACE_WITH_SUPADATA_KEY and REPLACE_WITH_LLM_KEY (or swap them for n8n credentials). Then POST { \"url\": \"https://youtu.be/...\" } to the webhook URL. Swap the OpenAI node for any provider's chat endpoint."
+  }
+}

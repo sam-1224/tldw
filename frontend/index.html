@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TL;DW — Too long; didn't watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #faf8f3;
+    --paper-2: #f2efe6;
+    --ink: #16161d;
+    --ink-soft: #54545f;
+    --ink-faint: #8a8a93;
+    --marigold: #f2a30f;
+    --marigold-deep: #d98a00;
+    --marigold-wash: rgba(242, 163, 15, 0.16);
+    --line: #e4e0d6;
+    --line-strong: #d4cfc1;
+    --danger: #c0392b;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 1px 2px rgba(22, 22, 29, .04), 0 8px 30px rgba(22, 22, 29, .06);
+    --shadow-lift: 0 2px 4px rgba(22, 22, 29, .06), 0 18px 48px rgba(22, 22, 29, .12);
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 12% -10%, rgba(242,163,15,.10), transparent 40%),
+      radial-gradient(circle at 92% 0%, rgba(242,163,15,.06), transparent 35%);
+    min-height: 100vh;
+  }
+
+  .wrap { width: min(900px, 92vw); margin: 0 auto; }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 0 18px;
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -.02em;
+    display: flex; align-items: baseline; gap: 2px;
+    user-select: none;
+  }
+  .brand .semi { color: var(--marigold); }
+  .brand small {
+    font-family: var(--mono); font-weight: 500; font-size: 11px;
+    color: var(--ink-faint); margin-left: 10px; letter-spacing: .04em;
+    text-transform: uppercase; align-self: center;
+  }
+  .icon-btn {
+    appearance: none; border: 1px solid var(--line-strong); background: var(--paper);
+    width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+    display: grid; place-items: center; color: var(--ink-soft);
+    transition: transform .25s var(--ease), border-color .2s, color .2s;
+  }
+  .icon-btn:hover { transform: rotate(35deg); color: var(--ink); border-color: var(--ink); }
+  .icon-btn svg { width: 19px; height: 19px; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 40px 0 8px; text-align: center; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--marigold-deep); font-weight: 500;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(40px, 8vw, 76px); line-height: .98; letter-spacing: -.035em;
+    margin: 14px 0 0;
+  }
+  h1 .mark {
+    background: linear-gradient(transparent 62%, var(--marigold-wash) 62%);
+    padding: 0 .08em;
+  }
+  .sub {
+    color: var(--ink-soft); font-size: 18px; margin: 20px auto 0;
+    max-width: 30ch;
+  }
+
+  /* ---------- scrubber input ---------- */
+  .console {
+    margin: 38px auto 0; max-width: 640px; background: #fff;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 10px 10px 10px 18px;
+  }
+  .console-row { display: flex; align-items: center; gap: 12px; }
+  .play-dot {
+    width: 30px; height: 30px; flex: none; border-radius: 50%;
+    background: var(--marigold); display: grid; place-items: center;
+    color: #fff; box-shadow: 0 0 0 6px var(--marigold-wash);
+  }
+  .play-dot svg { width: 13px; height: 13px; margin-left: 1px; }
+  #url {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: var(--mono); font-size: 15px; color: var(--ink); padding: 12px 0;
+  }
+  #url::placeholder { color: var(--ink-faint); }
+  .go {
+    appearance: none; border: none; cursor: pointer; flex: none;
+    background: var(--ink); color: var(--paper);
+    font-family: var(--display); font-weight: 600; font-size: 15px;
+    padding: 13px 22px; border-radius: 11px;
+    transition: transform .18s var(--ease), background .2s;
+  }
+  .go:hover:not(:disabled) { transform: translateY(-1px); background: #000; }
+  .go:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ambient timeline under input */
+  .timeline {
+    margin: 16px 4px 4px; height: 4px; border-radius: 4px;
+    background: var(--line); position: relative; overflow: hidden;
+  }
+  .timeline .fill {
+    position: absolute; inset: 0; width: 0%;
+    background: var(--marigold); border-radius: 4px;
+    transition: width .6s var(--ease);
+  }
+  .timeline .tick {
+    position: absolute; top: 50%; width: 11px; height: 11px;
+    margin: -5.5px 0 0 -5.5px; border-radius: 50%;
+    background: var(--marigold); border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+    transform: scale(0); transition: transform .4s var(--ease);
+    cursor: pointer;
+  }
+  .timeline .tick.show { transform: scale(1); }
+  .timeline .tick:hover { transform: scale(1.35); }
+
+  .meta-line {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    margin: 8px 4px 2px; letter-spacing: .03em;
+  }
+  .hint {
+    text-align: center; font-size: 13px; color: var(--ink-faint);
+    margin-top: 18px;
+  }
+  .hint b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---------- loading ---------- */
+  .loading { display: none; text-align: center; padding: 40px 0; }
+  .loading.on { display: block; }
+  .scan {
+    width: 240px; height: 4px; margin: 0 auto 22px; border-radius: 4px;
+    background: var(--line); position: relative; overflow: hidden;
+  }
+  .scan::after {
+    content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--marigold), transparent);
+    animation: sweep 1.1s var(--ease) infinite;
+  }
+  @keyframes sweep { to { left: 110%; } }
+  #loadMsg { font-family: var(--mono); font-size: 14px; color: var(--ink-soft); }
+
+  /* ---------- error ---------- */
+  .error { display: none; margin: 28px auto 0; max-width: 640px;
+    background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--danger);
+    border-radius: var(--radius-sm); padding: 16px 18px; box-shadow: var(--shadow); }
+  .error.on { display: block; }
+  .error h4 { margin: 0 0 4px; font-family: var(--display); font-size: 15px; }
+  .error p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+  /* ---------- results ---------- */
+  .results { display: none; margin: 44px 0 80px; }
+  .results.on { display: block; animation: rise .6s var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .vid {
+    display: flex; gap: 16px; align-items: center; margin-bottom: 26px;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; box-shadow: var(--shadow);
+  }
+  .vid img { width: 132px; height: 74px; object-fit: cover; border-radius: 9px; flex: none; background: var(--paper-2); }
+  .vid .vt { font-family: var(--display); font-weight: 600; font-size: 17px; line-height: 1.25; }
+  .vid .va { color: var(--ink-faint); font-size: 13px; margin-top: 4px; }
+  .vid .badge {
+    display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--marigold-deep);
+    background: var(--marigold-wash); padding: 3px 8px; border-radius: 999px;
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px;
+  }
+
+  .tldr {
+    background: var(--ink); color: var(--paper); border-radius: var(--radius);
+    padding: 24px 26px; margin-bottom: 30px; box-shadow: var(--shadow-lift);
+  }
+  .tldr .section-label { color: var(--marigold); }
+  .tldr p { margin: 0; font-family: var(--display); font-weight: 400; font-size: 21px; line-height: 1.4; }
+
+  .points { display: flex; flex-direction: column; gap: 2px; margin-bottom: 30px; }
+  .point {
+    display: flex; gap: 16px; align-items: baseline;
+    padding: 16px 6px; border-top: 1px solid var(--line);
+  }
+  .point:last-child { border-bottom: 1px solid var(--line); }
+  .stamp {
+    flex: none; font-family: var(--mono); font-weight: 500; font-size: 12px;
+    color: var(--ink); background: var(--marigold-wash); border: 1px solid transparent;
+    padding: 5px 9px; border-radius: 7px; text-decoration: none; min-width: 56px;
+    text-align: center; transition: border-color .15s, transform .15s var(--ease);
+  }
+  .stamp:hover { border-color: var(--marigold); transform: translateY(-1px); }
+  .point p { margin: 0; font-size: 16px; color: var(--ink); }
+
+  .topics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 34px; }
+  .topic {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-soft);
+    border: 1px solid var(--line-strong); padding: 6px 12px; border-radius: 999px;
+  }
+
+  details.transcript {
+    border-top: 1px solid var(--line); padding-top: 18px;
+  }
+  details.transcript summary {
+    cursor: pointer; font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-faint); list-style: none;
+  }
+  details.transcript summary::-webkit-details-marker { display: none; }
+  details.transcript summary::before { content: "+ "; color: var(--marigold-deep); }
+  details.transcript[open] summary::before { content: "− "; }
+  .tline { display: flex; gap: 14px; padding: 7px 0; font-size: 14px; border-bottom: 1px dashed var(--line); }
+  .tline .stamp { background: transparent; min-width: 52px; pointer-events: none; }
+  .transcript-body { margin-top: 14px; max-height: 360px; overflow-y: auto; padding-right: 8px; }
+
+  footer {
+    text-align: center; padding: 30px 0 50px; color: var(--ink-faint);
+    font-size: 13px; border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--ink-soft); }
+
+  /* ---------- settings drawer ---------- */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(22,22,29,.35);
+    opacity: 0; pointer-events: none; transition: opacity .3s var(--ease); z-index: 40;
+  }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; height: 100%; width: min(420px, 90vw);
+    background: var(--paper); border-left: 1px solid var(--line); z-index: 50;
+    transform: translateX(100%); transition: transform .36s var(--ease);
+    padding: 30px 28px; overflow-y: auto; box-shadow: var(--shadow-lift);
+  }
+  .drawer.on { transform: none; }
+  .drawer h3 { font-family: var(--display); font-weight: 800; font-size: 22px; margin: 0 0 4px; }
+  .drawer .note { color: var(--ink-soft); font-size: 13px; margin: 0 0 24px; }
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 7px;
+  }
+  .field input, .field select {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm); background: #fff; font-family: var(--mono);
+    font-size: 14px; color: var(--ink); outline: none; transition: border-color .2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--marigold); }
+  .field .help { font-size: 12px; color: var(--ink-faint); margin-top: 6px; font-family: var(--body); }
+  .field .help a { color: var(--marigold-deep); }
+  .save {
+    width: 100%; appearance: none; border: none; cursor: pointer;
+    background: var(--ink); color: var(--paper); font-family: var(--display);
+    font-weight: 600; font-size: 15px; padding: 14px; border-radius: var(--radius-sm);
+    margin-top: 6px; transition: background .2s;
+  }
+  .save:hover { background: #000; }
+  .saved-flag {
+    text-align: center; font-family: var(--mono); font-size: 12px;
+    color: var(--marigold-deep); height: 16px; margin-top: 10px; opacity: 0; transition: opacity .3s;
+  }
+  .saved-flag.on { opacity: 1; }
+  .privacy {
+    margin-top: 24px; padding: 14px; border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-sm); font-size: 12.5px; color: var(--ink-soft);
+  }
+
+  :focus-visible { outline: 2px solid var(--marigold); outline-offset: 2px; }
+
+  @media (max-width: 560px) {
+    .console-row { flex-wrap: wrap; }
+    #url { width: 100%; order: 3; }
+    .go { width: 100%; order: 4; margin-top: 8px; }
+    .vid { flex-direction: column; align-items: flex-start; }
+    .vid img { width: 100%; height: auto; aspect-ratio: 16/9; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::after, ::before { animation: none !important; transition: none !important; }
+    .scan::after { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">TL<span class="semi">;</span>DW <small>too long · didn't watch</small></div>
+      <button class="icon-btn" id="gear" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">paste a link · skip the watch</div>
+      <h1>Watch less.<br/><span class="mark">Know more.</span></h1>
+      <p class="sub">Drop a YouTube URL. Get the gist, the key moments, and timestamps you can jump to.</p>
+
+      <div class="console">
+        <div class="console-row">
+          <span class="play-dot" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+          <input id="url" type="url" placeholder="https://youtube.com/watch?v=…" autocomplete="off" spellcheck="false" />
+          <button class="go" id="go">Summarize</button>
+        </div>
+        <div class="timeline" id="idleTimeline"><div class="fill" id="idleFill"></div></div>
+        <div class="meta-line"><span id="srcLabel">free transcript · whisper fallback</span><span id="provLabel">— add a key in settings</span></div>
+      </div>
+
+      <p class="hint">No account. Your keys stay in <b>your browser</b>. Free <b>youtube-transcript-api</b> first, <b>Supadata</b> AI fallback when captions are missing.</p>
+    </section>
+
+    <div class="loading" id="loading">
+      <div class="scan"></div>
+      <div id="loadMsg">Fetching the transcript…</div>
+    </div>
+
+    <div class="error" id="error">
+      <h4 id="errTitle">Something went sideways</h4>
+      <p id="errMsg"></p>
+    </div>
+
+    <section class="results" id="results">
+      <div class="vid" id="vid">
+        <img id="thumb" alt="" />
+        <div>
+          <div class="vt" id="vtitle"></div>
+          <div class="va" id="vauthor"></div>
+          <span class="badge" id="vbadge"></span>
+        </div>
+      </div>
+
+      <p class="section-label">The timeline · tap a marker to jump</p>
+      <div class="timeline" id="resultTimeline" style="margin-bottom:30px;"></div>
+
+      <div class="tldr">
+        <p class="section-label">TL;DW</p>
+        <p id="tldr"></p>
+      </div>
+
+      <p class="section-label">Key moments</p>
+      <div class="points" id="points"></div>
+
+      <div class="topics" id="topics"></div>
+
+      <details class="transcript">
+        <summary>Full transcript</summary>
+        <div class="transcript-body" id="transcript"></div>
+      </details>
+    </section>
+
+    <footer>
+      Open source · BYOK · <a href="https://github.com" id="repoLink" target="_blank" rel="noopener">fork it on GitHub</a>
+    </footer>
+  </div>
+
+  <!-- settings -->
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer" aria-label="Settings">
+    <h3>Settings</h3>
+    <p class="note">Bring your own keys. Nothing is sent anywhere except the provider you choose.</p>
+
+    <div class="field">
+      <label for="provider">Summary model</label>
+      <select id="provider">
+        <option value="anthropic">Anthropic — Claude</option>
+        <option value="openai">OpenAI — GPT</option>
+        <option value="gemini">Google — Gemini (free tier)</option>
+        <option value="groq">Groq — Llama (free, fast)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="llmKey">LLM API key</label>
+      <input id="llmKey" type="password" placeholder="sk-… / your provider key" autocomplete="off" />
+      <div class="help">For the cheapest setup, pick <b>Gemini</b> or <b>Groq</b> — both have generous free tiers.</div>
+    </div>
+
+    <div class="field">
+      <label for="supaKey">Supadata key — optional</label>
+      <input id="supaKey" type="password" placeholder="for videos without captions" autocomplete="off" />
+      <div class="help">Only used as a fallback when a video has no captions. <a href="https://supadata.ai" target="_blank" rel="noopener">Free 100/mo →</a></div>
+    </div>
+
+    <div class="field">
+      <label for="model">Model override — optional</label>
+      <input id="model" type="text" placeholder="leave blank for a sensible default" autocomplete="off" />
+      <div class="help">e.g. <span style="font-family:var(--mono)">gpt-4o</span>, <span style="font-family:var(--mono)">claude-sonnet-4-5</span>, <span style="font-family:var(--mono)">gemini-1.5-pro</span></div>
+    </div>
+
+    <button class="save" id="save">Save to this browser</button>
+    <div class="saved-flag" id="savedFlag">Saved ✓</div>
+
+    <div class="privacy">
+      Keys live in <b>localStorage</b> on this device only. Clear them any time by
+      emptying the fields and saving. This tool never stores them server-side.
+    </div>
+  </aside>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const LS_KEY = "tldw.settings.v1";
+  const PROVIDER_LABELS = { anthropic: "Claude", openai: "GPT", gemini: "Gemini", groq: "Llama" };
+
+  let settings = { provider: "anthropic", llm_key: "", supadata_key: "", model: "" };
+
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) settings = { ...settings, ...JSON.parse(raw) };
+    } catch (e) {}
+    $("provider").value = settings.provider;
+    $("llmKey").value = settings.llm_key;
+    $("supaKey").value = settings.supadata_key;
+    $("model").value = settings.model;
+    refreshProvLabel();
+  }
+  function saveSettings() {
+    settings = {
+      provider: $("provider").value,
+      llm_key: $("llmKey").value.trim(),
+      supadata_key: $("supaKey").value.trim(),
+      model: $("model").value.trim(),
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(settings));
+    refreshProvLabel();
+    $("savedFlag").classList.add("on");
+    setTimeout(() => $("savedFlag").classList.remove("on"), 1600);
+  }
+  function refreshProvLabel() {
+    const name = PROVIDER_LABELS[settings.provider] || settings.provider;
+    $("provLabel").textContent = settings.llm_key ? `— summarizing with ${name}` : "— add a key in settings";
+  }
+
+  // drawer
+  function openDrawer() { $("drawer").classList.add("on"); $("scrim").classList.add("on"); }
+  function closeDrawer() { $("drawer").classList.remove("on"); $("scrim").classList.remove("on"); }
+  $("gear").onclick = openDrawer;
+  $("scrim").onclick = closeDrawer;
+  $("save").onclick = saveSettings;
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+
+  // loading copy — playful, rotates
+  const LOAD_MSGS = [
+    "Fetching the transcript…",
+    "Scrubbing past the intro…",
+    "Fast-forwarding so you don't have to…",
+    "Reading every word so you can read three…",
+    "Finding the parts worth keeping…",
+  ];
+  let loadTimer = null;
+  function startLoading() {
+    let i = 0;
+    $("loadMsg").textContent = LOAD_MSGS[0];
+    loadTimer = setInterval(() => { i = (i + 1) % LOAD_MSGS.length; $("loadMsg").textContent = LOAD_MSGS[i]; }, 2200);
+    $("loading").classList.add("on");
+  }
+  function stopLoading() { clearInterval(loadTimer); $("loading").classList.remove("on"); }
+
+  function showError(title, msg) {
+    $("errTitle").textContent = title;
+    $("errMsg").textContent = msg;
+    $("error").classList.add("on");
+  }
+  function clearError() { $("error").classList.remove("on"); }
+
+  function fmt(sec) {
+    sec = Math.floor(sec || 0);
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    const mm = h ? String(m).padStart(2, "0") : m;
+    return (h ? h + ":" : "") + mm + ":" + String(s).padStart(2, "0");
+  }
+  function toSeconds(stamp) {
+    if (typeof stamp !== "string") return 0;
+    const p = stamp.split(":").map(Number);
+    if (p.some(isNaN)) return 0;
+    return p.length === 3 ? p[0]*3600 + p[1]*60 + p[2] : p.length === 2 ? p[0]*60 + p[1] : p[0];
+  }
+
+  async function summarize() {
+    const url = $("url").value.trim();
+    clearError();
+    $("results").classList.remove("on");
+    if (!url) { showError("Need a link", "Paste a YouTube URL to get started."); return; }
+    if (!settings.llm_key) { showError("No model key yet", "Open settings (top right) and add an API key for your chosen model."); openDrawer(); return; }
+
+    $("go").disabled = true;
+    startLoading();
+    // tease the idle timeline while we wait
+    $("idleFill").style.width = "70%";
+
+    try {
+      const res = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          provider: settings.provider,
+          llm_key: settings.llm_key,
+          supadata_key: settings.supadata_key || null,
+          model: settings.model || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError("Couldn't summarize that", data.error || "Unknown error."); return; }
+      render(data);
+    } catch (e) {
+      showError("Connection problem", "The backend didn't respond. Is the server running on this port?");
+    } finally {
+      $("go").disabled = false;
+      stopLoading();
+      $("idleFill").style.width = "0%";
+    }
+  }
+
+  function render(d) {
+    const vid = d.video_id;
+    const dur = d.duration_seconds || 0;
+    const watchUrl = (s) => `https://www.youtube.com/watch?v=${vid}&t=${Math.floor(s)}s`;
+
+    // video header
+    $("thumb").src = d.thumbnail || "";
+    $("vtitle").textContent = d.title || "Untitled video";
+    $("vauthor").textContent = [d.author, dur ? fmt(dur) : null].filter(Boolean).join(" · ");
+    $("vbadge").textContent = d.transcript_source === "supadata" ? "AI transcript (Supadata)" : "captions";
+
+    const s = d.summary || {};
+    $("tldr").textContent = s.tldr || "No summary returned.";
+
+    // key points + timeline markers
+    const pts = Array.isArray(s.key_points) ? s.key_points : [];
+    const pointsEl = $("points"); pointsEl.innerHTML = "";
+    const tl = $("resultTimeline"); tl.innerHTML = "";
+
+    pts.forEach((p, idx) => {
+      const sec = toSeconds(p.timestamp);
+      // row
+      const row = document.createElement("div"); row.className = "point";
+      const a = document.createElement("a");
+      a.className = "stamp"; a.href = watchUrl(sec); a.target = "_blank"; a.rel = "noopener";
+      a.textContent = p.timestamp || "—";
+      const txt = document.createElement("p"); txt.textContent = p.point || "";
+      row.appendChild(a); row.appendChild(txt); pointsEl.appendChild(row);
+      // marker
+      if (dur > 0) {
+        const tick = document.createElement("a");
+        tick.className = "tick"; tick.href = watchUrl(sec); tick.target = "_blank"; tick.rel = "noopener";
+        tick.style.left = Math.min(98, Math.max(1, (sec / dur) * 100)) + "%";
+        tick.title = `${p.timestamp} — ${p.point || ""}`;
+        tl.appendChild(tick);
+        setTimeout(() => tick.classList.add("show"), 120 + idx * 90);
+      }
+    });
+
+    // topics
+    const topicsEl = $("topics"); topicsEl.innerHTML = "";
+    (s.topics || []).forEach((t) => {
+      const el = document.createElement("span"); el.className = "topic"; el.textContent = t;
+      topicsEl.appendChild(el);
+    });
+
+    // transcript note (we only have the summary client-side; show points-derived note)
+    const trEl = $("transcript"); trEl.innerHTML = "";
+    if (s.truncated) {
+      const n = document.createElement("div");
+      n.className = "tline";
+      n.innerHTML = '<span class="stamp">note</span><span>Transcript was long, so it was trimmed before summarizing to keep cost down.</span>';
+      trEl.appendChild(n);
+    }
+    pts.forEach((p) => {
+      const line = document.createElement("div"); line.className = "tline";
+      const st = document.createElement("span"); st.className = "stamp"; st.textContent = p.timestamp || "—";
+      const tx = document.createElement("span"); tx.textContent = p.point || "";
+      line.appendChild(st); line.appendChild(tx); trEl.appendChild(line);
+    });
+
+    $("results").classList.add("on");
+    $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("go").onclick = summarize;
+  $("url").addEventListener("keydown", (e) => { if (e.key === "Enter") summarize(); });
+  $("provider").addEventListener("change", () => { settings.provider = $("provider").value; refreshProvLabel(); });
+
+  loadSettings();
+</script>
+</body>
+</html>
