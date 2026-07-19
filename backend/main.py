@@ -20,6 +20,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# backend/.env is explicit user intent for THIS app — let it beat stale
+# machine-wide env vars (a leftover global GEMINI_API_KEY etc.).
+load_dotenv(Path(__file__).parent / ".env", override=True)
+
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel

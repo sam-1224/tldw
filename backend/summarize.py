@@ -27,13 +27,14 @@ PROVIDERS: dict[str, dict] = {
     "gemini": {
         "label": "Google Gemini",
         "kind": "gemini",
-        "default_model": "gemini-2.5-flash",
+        # "-latest" aliases track Google's current models; fixed ids get
+        # withdrawn for new API keys ("no longer available to new users").
+        "default_model": "gemini-flash-latest",
         "models": [
-            "gemini-2.5-flash",
-            "gemini-3-flash",
-            "gemini-3.5-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-2.5-pro",
+            "gemini-flash-latest",
+            "gemini-3-flash-preview",
+            "gemini-flash-lite-latest",
+            "gemini-pro-latest",
         ],
     },
     "groq": {

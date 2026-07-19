@@ -1,0 +1,646 @@
+[
+    {
+        "label": "pytest",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pytest",
+        "description": "pytest",
+        "detail": "pytest",
+        "documentation": {}
+    },
+    {
+        "label": "TestClient",
+        "importPath": "fastapi.testclient",
+        "description": "fastapi.testclient",
+        "isExtraImport": true,
+        "detail": "fastapi.testclient",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "main",
+        "description": "main",
+        "detail": "main",
+        "documentation": {}
+    },
+    {
+        "label": "SummarizeError",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "summarize",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "SummarizeError",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "PROVIDERS",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "summarize",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "SummarizeError",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "PROVIDERS",
+        "importPath": "summarize",
+        "description": "summarize",
+        "isExtraImport": true,
+        "detail": "summarize",
+        "documentation": {}
+    },
+    {
+        "label": "respx",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "respx",
+        "description": "respx",
+        "detail": "respx",
+        "documentation": {}
+    },
+    {
+        "label": "httpx",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "httpx",
+        "description": "httpx",
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "Response",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "FileResponse",
+        "importPath": "fastapi.responses",
+        "description": "fastapi.responses",
+        "isExtraImport": true,
+        "detail": "fastapi.responses",
+        "documentation": {}
+    },
+    {
+        "label": "JSONResponse",
+        "importPath": "fastapi.responses",
+        "description": "fastapi.responses",
+        "isExtraImport": true,
+        "detail": "fastapi.responses",
+        "documentation": {}
+    },
+    {
+        "label": "BaseModel",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "get_transcript",
+        "importPath": "transcript",
+        "description": "transcript",
+        "isExtraImport": true,
+        "detail": "transcript",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_oembed",
+        "importPath": "transcript",
+        "description": "transcript",
+        "isExtraImport": true,
+        "detail": "transcript",
+        "documentation": {}
+    },
+    {
+        "label": "extract_video_id",
+        "importPath": "transcript",
+        "description": "transcript",
+        "isExtraImport": true,
+        "detail": "transcript",
+        "documentation": {}
+    },
+    {
+        "label": "TranscriptError",
+        "importPath": "transcript",
+        "description": "transcript",
+        "isExtraImport": true,
+        "detail": "transcript",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "re",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "re",
+        "description": "re",
+        "detail": "re",
+        "documentation": {}
+    },
+    {
+        "label": "stub_transcript",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def stub_transcript(monkeypatch):\n    monkeypatch.setattr(main, \"get_transcript\", lambda url, **kw: TRANSCRIPT)\n    monkeypatch.setattr(main, \"fetch_oembed\", lambda vid: OEMBED)\ndef test_config_reports_free_chain_without_leaking_keys(monkeypatch):\n    monkeypatch.setenv(\"GEMINI_API_KEY\", \"secret-value\")\n    monkeypatch.delenv(\"GROQ_API_KEY\", raising=False)\n    monkeypatch.delenv(\"CEREBRAS_API_KEY\", raising=False)\n    data = client.get(\"/api/config\").json()\n    assert data[\"free_tier_available\"] is True\n    assert data[\"free_chain\"] == [\"gemini\"]",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_config_reports_free_chain_without_leaking_keys",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_config_reports_free_chain_without_leaking_keys(monkeypatch):\n    monkeypatch.setenv(\"GEMINI_API_KEY\", \"secret-value\")\n    monkeypatch.delenv(\"GROQ_API_KEY\", raising=False)\n    monkeypatch.delenv(\"CEREBRAS_API_KEY\", raising=False)\n    data = client.get(\"/api/config\").json()\n    assert data[\"free_tier_available\"] is True\n    assert data[\"free_chain\"] == [\"gemini\"]\n    assert \"secret-value\" not in str(data)\n    ids = [p[\"id\"] for p in data[\"providers\"]]\n    assert {\"gemini\", \"groq\", \"openai\", \"anthropic\", \"xai\", \"custom\"} <= set(ids)",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_bad_url_400",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_bad_url_400():\n    r = client.post(\"/api/summarize\", json={\"url\": \"not a link\"})\n    assert r.status_code == 400\ndef test_keyless_no_env_key_friendly_400(monkeypatch):\n    for p in (\"GEMINI\", \"GROQ\", \"CEREBRAS\"):\n        monkeypatch.delenv(f\"{p}_API_KEY\", raising=False)\n    r = client.post(\n        \"/api/summarize\", json={\"url\": \"https://youtu.be/dQw4w9WgXcQ\"}\n    )\n    assert r.status_code == 400",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_keyless_no_env_key_friendly_400",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_keyless_no_env_key_friendly_400(monkeypatch):\n    for p in (\"GEMINI\", \"GROQ\", \"CEREBRAS\"):\n        monkeypatch.delenv(f\"{p}_API_KEY\", raising=False)\n    r = client.post(\n        \"/api/summarize\", json={\"url\": \"https://youtu.be/dQw4w9WgXcQ\"}\n    )\n    assert r.status_code == 400\n    assert \"free\" in r.json()[\"error\"].lower()\ndef test_byok_request_key_beats_env_key(monkeypatch):\n    monkeypatch.setenv(\"OPENAI_API_KEY\", \"env-key\")",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_byok_request_key_beats_env_key",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_byok_request_key_beats_env_key(monkeypatch):\n    monkeypatch.setenv(\"OPENAI_API_KEY\", \"env-key\")\n    seen = {}\n    def fake_summarize(segments, provider, key, model=None, base_url=None):\n        seen.update(provider=provider, key=key, model=model)\n        return dict(SUMMARY)\n    monkeypatch.setattr(main, \"summarize\", fake_summarize)\n    r = client.post(\n        \"/api/summarize\",\n        json={",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_keyless_uses_env_key",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_keyless_uses_env_key(monkeypatch):\n    monkeypatch.setenv(\"GEMINI_API_KEY\", \"env-gem\")\n    monkeypatch.delenv(\"GROQ_API_KEY\", raising=False)\n    monkeypatch.delenv(\"CEREBRAS_API_KEY\", raising=False)\n    seen = {}\n    def fake_summarize(segments, provider, key, model=None, base_url=None):\n        seen.update(provider=provider, key=key)\n        return dict(SUMMARY)\n    monkeypatch.setattr(main, \"summarize\", fake_summarize)\n    r = client.post(\"/api/summarize\", json={\"url\": \"https://youtu.be/dQw4w9WgXcQ\"})",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_free_mode_fails_over_on_429",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_free_mode_fails_over_on_429(monkeypatch):\n    monkeypatch.setenv(\"GEMINI_API_KEY\", \"env-gem\")\n    monkeypatch.setenv(\"GROQ_API_KEY\", \"env-groq\")\n    monkeypatch.delenv(\"CEREBRAS_API_KEY\", raising=False)\n    calls = []\n    def fake_summarize(segments, provider, key, model=None, base_url=None):\n        calls.append(provider)\n        if provider == \"gemini\":\n            raise SummarizeError(\"gemini rate limit hit.\", status=429)\n        return dict(SUMMARY)",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_byok_does_not_fail_over",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_byok_does_not_fail_over(monkeypatch):\n    monkeypatch.setenv(\"GROQ_API_KEY\", \"env-groq\")\n    def fake_summarize(segments, provider, key, model=None, base_url=None):\n        raise SummarizeError(\"gemini rate limit hit.\", status=429)\n    monkeypatch.setattr(main, \"summarize\", fake_summarize)\n    r = client.post(\n        \"/api/summarize\",\n        json={\n            \"url\": \"https://youtu.be/dQw4w9WgXcQ\",\n            \"provider\": \"gemini\",",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "test_custom_base_url_passes_through",
+        "kind": 2,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "def test_custom_base_url_passes_through(monkeypatch):\n    seen = {}\n    def fake_summarize(segments, provider, key, model=None, base_url=None):\n        seen.update(provider=provider, key=key, base_url=base_url)\n        return dict(SUMMARY)\n    monkeypatch.setattr(main, \"summarize\", fake_summarize)\n    r = client.post(\n        \"/api/summarize\",\n        json={\n            \"url\": \"https://youtu.be/dQw4w9WgXcQ\",",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "client",
+        "kind": 5,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "client = TestClient(main.app)\nTRANSCRIPT = {\n    \"segments\": [{\"text\": \"hi\", \"start\": 0.0, \"duration\": 2.0}],\n    \"source\": \"captions\",\n}\nSUMMARY = {\"tldr\": \"t\", \"key_points\": [], \"topics\": [], \"truncated\": False}\nOEMBED = {\"title\": \"T\", \"author\": \"A\", \"thumbnail\": \"\"}\n@pytest.fixture(autouse=True)\ndef stub_transcript(monkeypatch):\n    monkeypatch.setattr(main, \"get_transcript\", lambda url, **kw: TRANSCRIPT)",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "TRANSCRIPT",
+        "kind": 5,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "TRANSCRIPT = {\n    \"segments\": [{\"text\": \"hi\", \"start\": 0.0, \"duration\": 2.0}],\n    \"source\": \"captions\",\n}\nSUMMARY = {\"tldr\": \"t\", \"key_points\": [], \"topics\": [], \"truncated\": False}\nOEMBED = {\"title\": \"T\", \"author\": \"A\", \"thumbnail\": \"\"}\n@pytest.fixture(autouse=True)\ndef stub_transcript(monkeypatch):\n    monkeypatch.setattr(main, \"get_transcript\", lambda url, **kw: TRANSCRIPT)\n    monkeypatch.setattr(main, \"fetch_oembed\", lambda vid: OEMBED)",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "SUMMARY",
+        "kind": 5,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "SUMMARY = {\"tldr\": \"t\", \"key_points\": [], \"topics\": [], \"truncated\": False}\nOEMBED = {\"title\": \"T\", \"author\": \"A\", \"thumbnail\": \"\"}\n@pytest.fixture(autouse=True)\ndef stub_transcript(monkeypatch):\n    monkeypatch.setattr(main, \"get_transcript\", lambda url, **kw: TRANSCRIPT)\n    monkeypatch.setattr(main, \"fetch_oembed\", lambda vid: OEMBED)\ndef test_config_reports_free_chain_without_leaking_keys(monkeypatch):\n    monkeypatch.setenv(\"GEMINI_API_KEY\", \"secret-value\")\n    monkeypatch.delenv(\"GROQ_API_KEY\", raising=False)\n    monkeypatch.delenv(\"CEREBRAS_API_KEY\", raising=False)",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "OEMBED",
+        "kind": 5,
+        "importPath": "backend.tests.test_api",
+        "description": "backend.tests.test_api",
+        "peekOfCode": "OEMBED = {\"title\": \"T\", \"author\": \"A\", \"thumbnail\": \"\"}\n@pytest.fixture(autouse=True)\ndef stub_transcript(monkeypatch):\n    monkeypatch.setattr(main, \"get_transcript\", lambda url, **kw: TRANSCRIPT)\n    monkeypatch.setattr(main, \"fetch_oembed\", lambda vid: OEMBED)\ndef test_config_reports_free_chain_without_leaking_keys(monkeypatch):\n    monkeypatch.setenv(\"GEMINI_API_KEY\", \"secret-value\")\n    monkeypatch.delenv(\"GROQ_API_KEY\", raising=False)\n    monkeypatch.delenv(\"CEREBRAS_API_KEY\", raising=False)\n    data = client.get(\"/api/config\").json()",
+        "detail": "backend.tests.test_api",
+        "documentation": {}
+    },
+    {
+        "label": "oai_body",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def oai_body():\n    return {\"choices\": [{\"message\": {\"content\": GOOD_JSON}}]}\n@respx.mock\n@pytest.mark.parametrize(\"pid\", list(OAI_PROVIDERS))\ndef test_oai_provider_routes_to_its_base_url(pid):\n    cfg = OAI_PROVIDERS[pid]\n    route = respx.post(f\"{cfg['base']}/chat/completions\").mock(\n        return_value=Response(200, json=oai_body())\n    )\n    result = summarize(SEGMENTS, pid, \"test-key\")",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_oai_provider_routes_to_its_base_url",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_oai_provider_routes_to_its_base_url(pid):\n    cfg = OAI_PROVIDERS[pid]\n    route = respx.post(f\"{cfg['base']}/chat/completions\").mock(\n        return_value=Response(200, json=oai_body())\n    )\n    result = summarize(SEGMENTS, pid, \"test-key\")\n    assert route.called\n    req = route.calls.last.request\n    assert req.headers[\"Authorization\"] == \"Bearer test-key\"\n    assert result[\"tldr\"] == \"t\"",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_anthropic_routing_and_auth_header",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_anthropic_routing_and_auth_header():\n    route = respx.post(\"https://api.anthropic.com/v1/messages\").mock(\n        return_value=Response(200, json={\"content\": [{\"text\": GOOD_JSON}]})\n    )\n    result = summarize(SEGMENTS, \"anthropic\", \"ant-key\", model=\"claude-sonnet-5\")\n    assert route.calls.last.request.headers[\"x-api-key\"] == \"ant-key\"\n    assert result[\"model\"] == \"claude-sonnet-5\"\n@respx.mock\ndef test_gemini_routing_key_in_query():\n    route = respx.post(",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_gemini_routing_key_in_query",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_gemini_routing_key_in_query():\n    route = respx.post(\n        \"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent\"\n    ).mock(\n        return_value=Response(\n            200,\n            json={\"candidates\": [{\"content\": {\"parts\": [{\"text\": GOOD_JSON}]}}]},\n        )\n    )\n    summarize(SEGMENTS, \"gemini\", \"gem-key\")",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_custom_base_url_key_optional",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_custom_base_url_key_optional():\n    route = respx.post(\"http://localhost:11434/v1/chat/completions\").mock(\n        return_value=Response(200, json=oai_body())\n    )\n    result = summarize(\n        SEGMENTS, \"custom\", \"\", model=\"llama3\", base_url=\"http://localhost:11434/v1\"\n    )\n    assert route.called\n    assert \"Authorization\" not in route.calls.last.request.headers\n    # local servers don't all accept response_format — must be omitted",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_custom_without_base_url_errors",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_custom_without_base_url_errors():\n    with pytest.raises(SummarizeError, match=\"base URL\"):\n        summarize(SEGMENTS, \"custom\", \"\", model=\"llama3\")\ndef test_unknown_provider():\n    with pytest.raises(SummarizeError, match=\"Unknown provider\"):\n        summarize(SEGMENTS, \"nope\", \"key\")\ndef test_missing_key_for_key_required_provider():\n    with pytest.raises(SummarizeError, match=\"No LLM API key\"):\n        summarize(SEGMENTS, \"openai\", \"\")\n@respx.mock",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_unknown_provider",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_unknown_provider():\n    with pytest.raises(SummarizeError, match=\"Unknown provider\"):\n        summarize(SEGMENTS, \"nope\", \"key\")\ndef test_missing_key_for_key_required_provider():\n    with pytest.raises(SummarizeError, match=\"No LLM API key\"):\n        summarize(SEGMENTS, \"openai\", \"\")\n@respx.mock\n@pytest.mark.parametrize(\n    \"status,match\", [(401, \"rejected\"), (429, \"rate limit\"), (500, \"failed\")]\n)",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_missing_key_for_key_required_provider",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_missing_key_for_key_required_provider():\n    with pytest.raises(SummarizeError, match=\"No LLM API key\"):\n        summarize(SEGMENTS, \"openai\", \"\")\n@respx.mock\n@pytest.mark.parametrize(\n    \"status,match\", [(401, \"rejected\"), (429, \"rate limit\"), (500, \"failed\")]\n)\ndef test_error_mapping(status, match):\n    respx.post(\"https://api.groq.com/openai/v1/chat/completions\").mock(\n        return_value=Response(status, json={})",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "test_error_mapping",
+        "kind": 2,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "def test_error_mapping(status, match):\n    respx.post(\"https://api.groq.com/openai/v1/chat/completions\").mock(\n        return_value=Response(status, json={})\n    )\n    with pytest.raises(SummarizeError, match=match) as exc_info:\n        summarize(SEGMENTS, \"groq\", \"k\")\n    assert exc_info.value.status == status",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "SEGMENTS",
+        "kind": 5,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "SEGMENTS = [{\"text\": \"hello world\", \"start\": 0.0, \"duration\": 2.0}]\nGOOD_JSON = '{\"tldr\": \"t\", \"key_points\": [{\"timestamp\": \"0:00\", \"point\": \"p\"}], \"topics\": [\"x\"]}'\nOAI_PROVIDERS = {\n    pid: cfg for pid, cfg in PROVIDERS.items() if cfg[\"kind\"] == \"oai\" and cfg[\"base\"]\n}\ndef oai_body():\n    return {\"choices\": [{\"message\": {\"content\": GOOD_JSON}}]}\n@respx.mock\n@pytest.mark.parametrize(\"pid\", list(OAI_PROVIDERS))\ndef test_oai_provider_routes_to_its_base_url(pid):",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "GOOD_JSON",
+        "kind": 5,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "GOOD_JSON = '{\"tldr\": \"t\", \"key_points\": [{\"timestamp\": \"0:00\", \"point\": \"p\"}], \"topics\": [\"x\"]}'\nOAI_PROVIDERS = {\n    pid: cfg for pid, cfg in PROVIDERS.items() if cfg[\"kind\"] == \"oai\" and cfg[\"base\"]\n}\ndef oai_body():\n    return {\"choices\": [{\"message\": {\"content\": GOOD_JSON}}]}\n@respx.mock\n@pytest.mark.parametrize(\"pid\", list(OAI_PROVIDERS))\ndef test_oai_provider_routes_to_its_base_url(pid):\n    cfg = OAI_PROVIDERS[pid]",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "OAI_PROVIDERS",
+        "kind": 5,
+        "importPath": "backend.tests.test_summarize",
+        "description": "backend.tests.test_summarize",
+        "peekOfCode": "OAI_PROVIDERS = {\n    pid: cfg for pid, cfg in PROVIDERS.items() if cfg[\"kind\"] == \"oai\" and cfg[\"base\"]\n}\ndef oai_body():\n    return {\"choices\": [{\"message\": {\"content\": GOOD_JSON}}]}\n@respx.mock\n@pytest.mark.parametrize(\"pid\", list(OAI_PROVIDERS))\ndef test_oai_provider_routes_to_its_base_url(pid):\n    cfg = OAI_PROVIDERS[pid]\n    route = respx.post(f\"{cfg['base']}/chat/completions\").mock(",
+        "detail": "backend.tests.test_summarize",
+        "documentation": {}
+    },
+    {
+        "label": "SummarizeRequest",
+        "kind": 6,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "class SummarizeRequest(BaseModel):\n    url: str\n    provider: str | None = None\n    llm_key: str | None = None\n    supadata_key: str | None = None\n    model: str | None = None\n    base_url: str | None = None\n    lang: str = \"en\"\n@app.get(\"/api/health\")\ndef health():",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "health",
+        "kind": 2,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "def health():\n    return {\"ok\": True}\n@app.get(\"/api/config\")\ndef config():\n    \"\"\"Provider catalog for the frontend. Key PRESENCE only — never values.\"\"\"\n    free_chain = [p for p in FREE_CHAIN if _env_key(p)]\n    return {\n        \"free_tier_available\": bool(free_chain),\n        \"default_provider\": _default_provider(),\n        \"free_chain\": free_chain,",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "config",
+        "kind": 2,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "def config():\n    \"\"\"Provider catalog for the frontend. Key PRESENCE only — never values.\"\"\"\n    free_chain = [p for p in FREE_CHAIN if _env_key(p)]\n    return {\n        \"free_tier_available\": bool(free_chain),\n        \"default_provider\": _default_provider(),\n        \"free_chain\": free_chain,\n        \"providers\": [\n            {\n                \"id\": pid,",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "index",
+        "kind": 2,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "def index():\n    if FRONTEND.exists():\n        return FileResponse(FRONTEND)\n    return JSONResponse({\"error\": \"frontend not found\"}, status_code=404)\nNO_KEY_MESSAGE = (\n    \"This server has no free-tier key configured and you didn't add your own. \"\n    \"Add a key in settings — free ones take ~2 minutes: Gemini \"\n    \"(aistudio.google.com), Groq (console.groq.com), or OpenRouter \"\n    \"(openrouter.ai).\"\n)",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "do_summarize",
+        "kind": 2,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "def do_summarize(req: SummarizeRequest):\n    video_id = extract_video_id(req.url)\n    if not video_id:\n        return JSONResponse(\n            {\"error\": \"That doesn't look like a YouTube link.\"}, status_code=400\n        )\n    provider = (req.provider or _default_provider()).lower()\n    # Build (provider, key, base_url) attempts.\n    if req.llm_key or req.base_url:\n        # BYOK (or local custom server): exactly what the user asked for.",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "app = FastAPI(title=\"TL;DW\", description=\"Too long; didn't watch.\")\nFRONTEND = Path(__file__).parent.parent / \"frontend\" / \"index.html\"\n# Free-mode failover order. Only providers with an env key participate.\nFREE_CHAIN = [\"gemini\", \"groq\", \"cerebras\"]\ndef _env_key(provider: str) -> str:\n    return os.getenv(f\"{provider.upper()}_API_KEY\") or \"\"\ndef _default_provider() -> str:\n    return (os.getenv(\"DEFAULT_PROVIDER\") or \"gemini\").lower()\nclass SummarizeRequest(BaseModel):\n    url: str",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "FRONTEND",
+        "kind": 5,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "FRONTEND = Path(__file__).parent.parent / \"frontend\" / \"index.html\"\n# Free-mode failover order. Only providers with an env key participate.\nFREE_CHAIN = [\"gemini\", \"groq\", \"cerebras\"]\ndef _env_key(provider: str) -> str:\n    return os.getenv(f\"{provider.upper()}_API_KEY\") or \"\"\ndef _default_provider() -> str:\n    return (os.getenv(\"DEFAULT_PROVIDER\") or \"gemini\").lower()\nclass SummarizeRequest(BaseModel):\n    url: str\n    provider: str | None = None",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "FREE_CHAIN",
+        "kind": 5,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "FREE_CHAIN = [\"gemini\", \"groq\", \"cerebras\"]\ndef _env_key(provider: str) -> str:\n    return os.getenv(f\"{provider.upper()}_API_KEY\") or \"\"\ndef _default_provider() -> str:\n    return (os.getenv(\"DEFAULT_PROVIDER\") or \"gemini\").lower()\nclass SummarizeRequest(BaseModel):\n    url: str\n    provider: str | None = None\n    llm_key: str | None = None\n    supadata_key: str | None = None",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "NO_KEY_MESSAGE",
+        "kind": 5,
+        "importPath": "backend.main",
+        "description": "backend.main",
+        "peekOfCode": "NO_KEY_MESSAGE = (\n    \"This server has no free-tier key configured and you didn't add your own. \"\n    \"Add a key in settings — free ones take ~2 minutes: Gemini \"\n    \"(aistudio.google.com), Groq (console.groq.com), or OpenRouter \"\n    \"(openrouter.ai).\"\n)\n@app.post(\"/api/summarize\")\ndef do_summarize(req: SummarizeRequest):\n    video_id = extract_video_id(req.url)\n    if not video_id:",
+        "detail": "backend.main",
+        "documentation": {}
+    },
+    {
+        "label": "SummarizeError",
+        "kind": 6,
+        "importPath": "backend.summarize",
+        "description": "backend.summarize",
+        "peekOfCode": "class SummarizeError(Exception):\n    def __init__(self, message: str, status: int | None = None):\n        super().__init__(message)\n        self.status = status\ndef _format_timestamp(seconds: float) -> str:\n    seconds = int(seconds)\n    h, rem = divmod(seconds, 3600)\n    m, s = divmod(rem, 60)\n    return f\"{h}:{m:02d}:{s:02d}\" if h else f\"{m}:{s:02d}\"\ndef build_timestamped_text(segments: list[dict]) -> tuple[str, bool]:",
+        "detail": "backend.summarize",
+        "documentation": {}
+    },
+    {
+        "label": "build_timestamped_text",
+        "kind": 2,
+        "importPath": "backend.summarize",
+        "description": "backend.summarize",
+        "peekOfCode": "def build_timestamped_text(segments: list[dict]) -> tuple[str, bool]:\n    \"\"\"Turn segments into '[mm:ss] text' lines the model can anchor points to.\"\"\"\n    lines = []\n    for seg in segments:\n        lines.append(f\"[{_format_timestamp(seg['start'])}] {seg['text']}\")\n    text = \"\\n\".join(lines)\n    truncated = False\n    if len(text) > MAX_CHARS:\n        text = text[:MAX_CHARS]\n        truncated = True",
+        "detail": "backend.summarize",
+        "documentation": {}
+    },
+    {
+        "label": "summarize",
+        "kind": 2,
+        "importPath": "backend.summarize",
+        "description": "backend.summarize",
+        "peekOfCode": "def summarize(\n    segments: list[dict],\n    provider: str,\n    api_key: str,\n    model: str | None = None,\n    base_url: str | None = None,\n) -> dict:\n    provider = (provider or \"\").lower()\n    cfg = PROVIDERS.get(provider)\n    if cfg is None:",
+        "detail": "backend.summarize",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_CHARS",
+        "kind": 5,
+        "importPath": "backend.summarize",
+        "description": "backend.summarize",
+        "peekOfCode": "MAX_CHARS = 48_000\nclass SummarizeError(Exception):\n    def __init__(self, message: str, status: int | None = None):\n        super().__init__(message)\n        self.status = status\ndef _format_timestamp(seconds: float) -> str:\n    seconds = int(seconds)\n    h, rem = divmod(seconds, 3600)\n    m, s = divmod(rem, 60)\n    return f\"{h}:{m:02d}:{s:02d}\" if h else f\"{m}:{s:02d}\"",
+        "detail": "backend.summarize",
+        "documentation": {}
+    },
+    {
+        "label": "SYSTEM_PROMPT",
+        "kind": 5,
+        "importPath": "backend.summarize",
+        "description": "backend.summarize",
+        "peekOfCode": "SYSTEM_PROMPT = (\n    \"You are a precise video summariser. You are given a YouTube transcript \"\n    \"where each line is prefixed with a [timestamp]. Produce a faithful, \"\n    \"skimmable summary. Anchor each key point to the timestamp where that \"\n    \"topic begins, copied from the transcript. Never invent timestamps or \"\n    \"facts. Respond with ONLY a JSON object, no markdown, no preamble, in \"\n    \"exactly this shape:\\n\"\n    \"{\\n\"\n    '  \"tldr\": \"one or two sentence gist\",\\n'\n    '  \"key_points\": [\\n'",
+        "detail": "backend.summarize",
+        "documentation": {}
+    },
+    {
+        "label": "TranscriptError",
+        "kind": 6,
+        "importPath": "backend.transcript",
+        "description": "backend.transcript",
+        "peekOfCode": "class TranscriptError(Exception):\n    \"\"\"Raised when no transcript could be obtained from any source.\"\"\"\ndef extract_video_id(url: str) -> str | None:\n    url = (url or \"\").strip()\n    for pattern in _ID_PATTERNS:\n        m = re.search(pattern, url)\n        if m:\n            return m.group(1)\n    return None\ndef _from_youtube_library(video_id: str, lang: str = \"en\") -> list[dict]:",
+        "detail": "backend.transcript",
+        "documentation": {}
+    },
+    {
+        "label": "extract_video_id",
+        "kind": 2,
+        "importPath": "backend.transcript",
+        "description": "backend.transcript",
+        "peekOfCode": "def extract_video_id(url: str) -> str | None:\n    url = (url or \"\").strip()\n    for pattern in _ID_PATTERNS:\n        m = re.search(pattern, url)\n        if m:\n            return m.group(1)\n    return None\ndef _from_youtube_library(video_id: str, lang: str = \"en\") -> list[dict]:\n    \"\"\"Free path. Raises if the library is missing or no captions exist.\"\"\"\n    if not _HAS_YTA:",
+        "detail": "backend.transcript",
+        "documentation": {}
+    },
+    {
+        "label": "get_transcript",
+        "kind": 2,
+        "importPath": "backend.transcript",
+        "description": "backend.transcript",
+        "peekOfCode": "def get_transcript(\n    url: str, supadata_key: str | None = None, lang: str = \"en\"\n) -> dict:\n    \"\"\"\n    Returns:\n        {\n          \"video_id\": str,\n          \"segments\": [...],\n          \"source\": \"youtube-transcript-api\" | \"supadata\",\n        }",
+        "detail": "backend.transcript",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_oembed",
+        "kind": 2,
+        "importPath": "backend.transcript",
+        "description": "backend.transcript",
+        "peekOfCode": "def fetch_oembed(video_id: str) -> dict:\n    \"\"\"Free, key-less metadata (title, author, thumbnail) via YouTube oEmbed.\"\"\"\n    try:\n        resp = httpx.get(\n            \"https://www.youtube.com/oembed\",\n            params={\n                \"url\": f\"https://www.youtube.com/watch?v={video_id}\",\n                \"format\": \"json\",\n            },\n            timeout=15.0,",
+        "detail": "backend.transcript",
+        "documentation": {}
+    },
+    {
+        "label": "SUPADATA_BASE",
+        "kind": 5,
+        "importPath": "backend.transcript",
+        "description": "backend.transcript",
+        "peekOfCode": "SUPADATA_BASE = \"https://api.supadata.ai/v1\"\n# A handful of URL shapes people actually paste.\n_ID_PATTERNS = [\n    r\"(?:v=|/shorts/|youtu\\.be/|/embed/|/v/)([0-9A-Za-z_-]{11})\",\n    r\"^([0-9A-Za-z_-]{11})$\",  # bare id\n]\nclass TranscriptError(Exception):\n    \"\"\"Raised when no transcript could be obtained from any source.\"\"\"\ndef extract_video_id(url: str) -> str | None:\n    url = (url or \"\").strip()",
+        "detail": "backend.transcript",
+        "documentation": {}
+    },
+    {
+        "label": "_ID_PATTERNS",
+        "kind": 5,
+        "importPath": "backend.transcript",
+        "description": "backend.transcript",
+        "peekOfCode": "_ID_PATTERNS = [\n    r\"(?:v=|/shorts/|youtu\\.be/|/embed/|/v/)([0-9A-Za-z_-]{11})\",\n    r\"^([0-9A-Za-z_-]{11})$\",  # bare id\n]\nclass TranscriptError(Exception):\n    \"\"\"Raised when no transcript could be obtained from any source.\"\"\"\ndef extract_video_id(url: str) -> str | None:\n    url = (url or \"\").strip()\n    for pattern in _ID_PATTERNS:\n        m = re.search(pattern, url)",
+        "detail": "backend.transcript",
+        "documentation": {}
+    }
+]

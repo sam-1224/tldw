@@ -47,7 +47,7 @@ def test_anthropic_routing_and_auth_header():
 @respx.mock
 def test_gemini_routing_key_in_query():
     route = respx.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
     ).mock(
         return_value=Response(
             200,
