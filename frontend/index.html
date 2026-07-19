@@ -295,6 +295,21 @@
     margin-top: 24px; padding: 14px; border: 1px dashed var(--line-strong);
     border-radius: var(--radius-sm); font-size: 12.5px; color: var(--ink-soft);
   }
+  .mode-switch {
+    display: flex; gap: 6px; margin: 0 0 22px; padding: 4px;
+    background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  }
+  .mode-btn {
+    flex: 1; appearance: none; border: none; cursor: pointer; background: transparent;
+    font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink-soft);
+    padding: 10px; border-radius: 8px; transition: background .2s, color .2s;
+  }
+  .mode-btn.on { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .mode-btn.on::before { content: "● "; color: var(--marigold); font-size: 10px; vertical-align: 2px; }
+  .free-banner {
+    margin: 0 0 20px; padding: 12px 14px; border-radius: var(--radius-sm);
+    background: var(--marigold-wash); font-size: 13px; color: var(--ink);
+  }
 
   :focus-visible { outline: 2px solid var(--marigold); outline-offset: 2px; }
 
@@ -338,7 +353,7 @@
         <div class="meta-line"><span id="srcLabel">free transcript · whisper fallback</span><span id="provLabel">— add a key in settings</span></div>
       </div>
 
-      <p class="hint">No account. Your keys stay in <b>your browser</b>. Free <b>youtube-transcript-api</b> first, <b>Supadata</b> AI fallback when captions are missing.</p>
+      <p class="hint">No account, no key needed — runs on <b>free models</b>. Add your own API key in settings for premium models; it stays in <b>your browser</b>.</p>
     </section>
 
     <div class="loading" id="loading">
@@ -389,34 +404,55 @@
   <div class="scrim" id="scrim"></div>
   <aside class="drawer" id="drawer" aria-label="Settings">
     <h3>Settings</h3>
-    <p class="note">Bring your own keys. Nothing is sent anywhere except the provider you choose.</p>
+    <p class="note">Free mode needs no key. Bring your own key for premium models — it never leaves your browser except to the provider you pick.</p>
 
-    <div class="field">
-      <label for="provider">Summary model</label>
-      <select id="provider">
-        <option value="anthropic">Anthropic — Claude</option>
-        <option value="openai">OpenAI — GPT</option>
-        <option value="gemini">Google — Gemini (free tier)</option>
-        <option value="groq">Groq — Llama (free, fast)</option>
-      </select>
+    <div class="mode-switch" role="tablist" aria-label="Key mode">
+      <button class="mode-btn" id="modeFree" role="tab">Free</button>
+      <button class="mode-btn" id="modeByok" role="tab">Your API key</button>
     </div>
 
-    <div class="field">
-      <label for="llmKey">LLM API key</label>
-      <input id="llmKey" type="password" placeholder="sk-… / your provider key" autocomplete="off" />
-      <div class="help">For the cheapest setup, pick <b>Gemini</b> or <b>Groq</b> — both have generous free tiers.</div>
+    <div id="freePane">
+      <div class="free-banner" id="freeBanner">Running on this server's free tier — no key needed.</div>
+      <div class="field">
+        <label for="freeModel">Free model</label>
+        <select id="freeModel"></select>
+        <div class="help">Auto picks the best free model and fails over if a rate limit is hit.</div>
+      </div>
+    </div>
+
+    <div id="byokPane">
+      <div class="field">
+        <label for="provider">Provider</label>
+        <select id="provider"></select>
+      </div>
+
+      <div class="field" id="baseUrlField" style="display:none">
+        <label for="baseUrl">Base URL</label>
+        <input id="baseUrl" type="text" placeholder="http://localhost:11434/v1" autocomplete="off" />
+        <div class="help">Any OpenAI-compatible server: Ollama, LM Studio, vLLM…</div>
+      </div>
+
+      <div class="field">
+        <label for="modelSelect">Model</label>
+        <select id="modelSelect"></select>
+      </div>
+
+      <div class="field">
+        <label for="model">Custom model id — optional</label>
+        <input id="model" type="text" placeholder="overrides the dropdown when filled" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="llmKey">API key<span id="keyOptional"> — optional for local servers</span></label>
+        <input id="llmKey" type="password" placeholder="sk-… / your provider key" autocomplete="off" />
+        <div class="help">Free keys in ~2 min: <a href="https://aistudio.google.com" target="_blank" rel="noopener">Gemini</a>, <a href="https://console.groq.com" target="_blank" rel="noopener">Groq</a>, <a href="https://openrouter.ai" target="_blank" rel="noopener">OpenRouter</a>.</div>
+      </div>
     </div>
 
     <div class="field">
       <label for="supaKey">Supadata key — optional</label>
       <input id="supaKey" type="password" placeholder="for videos without captions" autocomplete="off" />
       <div class="help">Only used as a fallback when a video has no captions. <a href="https://supadata.ai" target="_blank" rel="noopener">Free 100/mo →</a></div>
-    </div>
-
-    <div class="field">
-      <label for="model">Model override — optional</label>
-      <input id="model" type="text" placeholder="leave blank for a sensible default" autocomplete="off" />
-      <div class="help">e.g. <span style="font-family:var(--mono)">gpt-4o</span>, <span style="font-family:var(--mono)">claude-sonnet-4-5</span>, <span style="font-family:var(--mono)">gemini-1.5-pro</span></div>
     </div>
 
     <button class="save" id="save">Save to this browser</button>
@@ -430,28 +466,120 @@
 
 <script>
   const $ = (id) => document.getElementById(id);
-  const LS_KEY = "tldw.settings.v1";
-  const PROVIDER_LABELS = { anthropic: "Claude", openai: "GPT", gemini: "Gemini", groq: "Llama" };
+  const LS_KEY = "tldw.settings.v2";
 
-  let settings = { provider: "anthropic", llm_key: "", supadata_key: "", model: "" };
+  let settings = {
+    mode: "free",            // "free" | "byok"
+    free_choice: "auto",     // "auto" or "provider::model"
+    provider: "gemini",
+    llm_key: "",
+    supadata_key: "",
+    model: "",               // free-text override
+    base_url: "",
+  };
+  let config = { free_tier_available: false, free_chain: [], providers: [] };
+
+  function providerCfg(id) { return config.providers.find((p) => p.id === id); }
+
+  async function fetchConfig() {
+    try {
+      const res = await fetch("/api/config");
+      if (res.ok) config = await res.json();
+    } catch (e) {}
+    if (!config.free_tier_available && settings.mode === "free") settings.mode = "byok";
+    buildProviderOptions();
+    buildFreeOptions();
+    applySettingsToUI();
+  }
+
+  function buildProviderOptions() {
+    const sel = $("provider"); sel.innerHTML = "";
+    (config.providers.length ? config.providers : [{ id: "gemini", label: "Google Gemini" }])
+      .forEach((p) => {
+        const o = document.createElement("option");
+        o.value = p.id; o.textContent = p.label;
+        sel.appendChild(o);
+      });
+  }
+
+  function buildFreeOptions() {
+    const sel = $("freeModel"); sel.innerHTML = "";
+    const auto = document.createElement("option");
+    auto.value = "auto"; auto.textContent = "Auto — best free model (with failover)";
+    sel.appendChild(auto);
+    config.free_chain.forEach((pid) => {
+      const p = providerCfg(pid);
+      if (!p) return;
+      p.models.forEach((m) => {
+        const o = document.createElement("option");
+        o.value = `${pid}::${m}`; o.textContent = `${p.label} — ${m}`;
+        sel.appendChild(o);
+      });
+    });
+    $("freeBanner").textContent = config.free_tier_available
+      ? "Running on this server's free tier — no key needed."
+      : "This server has no free-tier key configured — add your own key in the other tab.";
+  }
+
+  function buildModelOptions() {
+    const p = providerCfg($("provider").value);
+    const sel = $("modelSelect"); sel.innerHTML = "";
+    const models = p ? p.models : [];
+    if (!models.length) {
+      const o = document.createElement("option");
+      o.value = ""; o.textContent = "type a model id below";
+      sel.appendChild(o);
+    }
+    models.forEach((m, i) => {
+      const o = document.createElement("option");
+      o.value = m; o.textContent = m + (i === 0 ? " (default)" : "");
+      sel.appendChild(o);
+    });
+    const custom = p && p.needs_base_url;
+    $("baseUrlField").style.display = custom ? "" : "none";
+    $("keyOptional").style.display = p && p.key_optional ? "" : "none";
+  }
+
+  function setMode(mode) {
+    settings.mode = mode;
+    $("modeFree").classList.toggle("on", mode === "free");
+    $("modeByok").classList.toggle("on", mode === "byok");
+    $("freePane").style.display = mode === "free" ? "" : "none";
+    $("byokPane").style.display = mode === "byok" ? "" : "none";
+    refreshProvLabel();
+  }
+
+  function applySettingsToUI() {
+    if ([...$("provider").options].some((o) => o.value === settings.provider))
+      $("provider").value = settings.provider;
+    buildModelOptions();
+    if ([...$("modelSelect").options].some((o) => o.value === settings.model_select))
+      $("modelSelect").value = settings.model_select;
+    if ([...$("freeModel").options].some((o) => o.value === settings.free_choice))
+      $("freeModel").value = settings.free_choice;
+    $("llmKey").value = settings.llm_key;
+    $("supaKey").value = settings.supadata_key;
+    $("model").value = settings.model;
+    $("baseUrl").value = settings.base_url;
+    setMode(settings.mode);
+  }
 
   function loadSettings() {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) settings = { ...settings, ...JSON.parse(raw) };
     } catch (e) {}
-    $("provider").value = settings.provider;
-    $("llmKey").value = settings.llm_key;
-    $("supaKey").value = settings.supadata_key;
-    $("model").value = settings.model;
-    refreshProvLabel();
   }
   function saveSettings() {
     settings = {
+      ...settings,
+      free_choice: $("freeModel").value || "auto",
       provider: $("provider").value,
+      model_select: $("modelSelect").value,
       llm_key: $("llmKey").value.trim(),
       supadata_key: $("supaKey").value.trim(),
       model: $("model").value.trim(),
+      base_url: $("baseUrl").value.trim(),
     };
     localStorage.setItem(LS_KEY, JSON.stringify(settings));
     refreshProvLabel();
@@ -459,8 +587,16 @@
     setTimeout(() => $("savedFlag").classList.remove("on"), 1600);
   }
   function refreshProvLabel() {
-    const name = PROVIDER_LABELS[settings.provider] || settings.provider;
-    $("provLabel").textContent = settings.llm_key ? `— summarizing with ${name}` : "— add a key in settings";
+    if (settings.mode === "free") {
+      $("provLabel").textContent = config.free_tier_available
+        ? "— free tier, no key needed"
+        : "— add a key in settings";
+      return;
+    }
+    const p = providerCfg(settings.provider);
+    const name = p ? p.label : settings.provider;
+    $("provLabel").textContent = settings.llm_key || settings.base_url
+      ? `— summarizing with ${name}` : "— add a key in settings";
   }
 
   // drawer
@@ -513,7 +649,35 @@
     clearError();
     $("results").classList.remove("on");
     if (!url) { showError("Need a link", "Paste a YouTube URL to get started."); return; }
-    if (!settings.llm_key) { showError("No model key yet", "Open settings (top right) and add an API key for your chosen model."); openDrawer(); return; }
+
+    const body = { url, supadata_key: settings.supadata_key || null };
+    if (settings.mode === "free") {
+      if (!config.free_tier_available) {
+        showError("No model key yet", "This server has no free tier configured. Open settings and add your own API key — free ones take ~2 minutes.");
+        openDrawer(); return;
+      }
+      if (settings.free_choice && settings.free_choice !== "auto") {
+        const [p, m] = settings.free_choice.split("::");
+        body.provider = p; body.model = m;
+      }
+    } else {
+      const pcfg = providerCfg(settings.provider);
+      const needsKey = !(pcfg && pcfg.key_optional);
+      if (needsKey && !settings.llm_key) {
+        showError("No model key yet", "Open settings (top right) and add an API key for your chosen provider.");
+        openDrawer(); return;
+      }
+      body.provider = settings.provider;
+      body.llm_key = settings.llm_key || null;
+      body.model = settings.model || settings.model_select || null;
+      if (pcfg && pcfg.needs_base_url) {
+        if (!settings.base_url) {
+          showError("No base URL", "The custom provider needs the base URL of your local server, e.g. http://localhost:11434/v1.");
+          openDrawer(); return;
+        }
+        body.base_url = settings.base_url;
+      }
+    }
 
     $("go").disabled = true;
     startLoading();
@@ -524,13 +688,7 @@
       const res = await fetch("/api/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url,
-          provider: settings.provider,
-          llm_key: settings.llm_key,
-          supadata_key: settings.supadata_key || null,
-          model: settings.model || null,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) { showError("Couldn't summarize that", data.error || "Unknown error."); return; }
@@ -611,9 +769,12 @@
 
   $("go").onclick = summarize;
   $("url").addEventListener("keydown", (e) => { if (e.key === "Enter") summarize(); });
-  $("provider").addEventListener("change", () => { settings.provider = $("provider").value; refreshProvLabel(); });
+  $("provider").addEventListener("change", () => { settings.provider = $("provider").value; buildModelOptions(); refreshProvLabel(); });
+  $("modeFree").onclick = () => setMode("free");
+  $("modeByok").onclick = () => setMode("byok");
 
   loadSettings();
+  fetchConfig();
 </script>
 </body>
 </html>
