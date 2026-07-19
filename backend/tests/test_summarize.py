@@ -86,6 +86,43 @@ def test_prompt_demands_rich_contract():
         assert field in SYSTEM_PROMPT
 
 
+def test_system_prompt_language():
+    from summarize import _system_prompt
+
+    assert "English" in _system_prompt(None)
+    assert "हिन्दी (Hindi)" in _system_prompt("हिन्दी (Hindi)")
+    assert "{output_language}" not in _system_prompt("Español")
+
+
+@respx.mock
+def test_summary_lang_reaches_request_body():
+    route = respx.post("https://api.groq.com/openai/v1/chat/completions").mock(
+        return_value=Response(200, json=oai_body())
+    )
+    summarize(SEGMENTS, "groq", "k", summary_lang="Français")
+    assert b"Fran\\u00e7ais" in route.calls.last.request.content or \
+        "Français".encode() in route.calls.last.request.content
+
+
+def test_long_video_truncation_boundary():
+    """10-hour class of video: text over MAX_CHARS flags truncated."""
+    from summarize import build_timestamped_text, MAX_CHARS
+
+    # ~12k segments x ~40 chars ≈ 10h of captions, way past MAX_CHARS
+    segments = [
+        {"text": f"segment number {i} with some words", "start": i * 3.0,
+         "duration": 3.0}
+        for i in range(12_000)
+    ]
+    text, truncated = build_timestamped_text(segments)
+    assert truncated is True
+    assert len(text) == MAX_CHARS
+    # timestamps past 1h format as h:mm:ss
+    assert "[1:00:00]" in build_timestamped_text(
+        [{"text": "x", "start": 3600, "duration": 1.0}]
+    )[0]
+
+
 def test_unknown_provider():
     with pytest.raises(SummarizeError, match="Unknown provider"):
         summarize(SEGMENTS, "nope", "key")

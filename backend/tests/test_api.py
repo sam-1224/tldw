@@ -54,7 +54,7 @@ def test_byok_request_key_beats_env_key(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "env-key")
     seen = {}
 
-    def fake_summarize(segments, provider, key, model=None, base_url=None):
+    def fake_summarize(segments, provider, key, model=None, base_url=None, **kw):
         seen.update(provider=provider, key=key, model=model)
         return dict(SUMMARY)
 
@@ -78,7 +78,7 @@ def test_keyless_uses_env_key(monkeypatch):
     monkeypatch.delenv("CEREBRAS_API_KEY", raising=False)
     seen = {}
 
-    def fake_summarize(segments, provider, key, model=None, base_url=None):
+    def fake_summarize(segments, provider, key, model=None, base_url=None, **kw):
         seen.update(provider=provider, key=key)
         return dict(SUMMARY)
 
@@ -98,7 +98,7 @@ def test_free_mode_fails_over_on_429(monkeypatch):
     monkeypatch.delenv("CEREBRAS_API_KEY", raising=False)
     calls = []
 
-    def fake_summarize(segments, provider, key, model=None, base_url=None):
+    def fake_summarize(segments, provider, key, model=None, base_url=None, **kw):
         calls.append(provider)
         if provider == "gemini":
             raise SummarizeError("gemini rate limit hit.", status=429)
@@ -113,7 +113,7 @@ def test_free_mode_fails_over_on_429(monkeypatch):
 def test_byok_does_not_fail_over(monkeypatch):
     monkeypatch.setenv("GROQ_API_KEY", "env-groq")
 
-    def fake_summarize(segments, provider, key, model=None, base_url=None):
+    def fake_summarize(segments, provider, key, model=None, base_url=None, **kw):
         raise SummarizeError("gemini rate limit hit.", status=429)
 
     monkeypatch.setattr(main, "summarize", fake_summarize)
@@ -131,7 +131,7 @@ def test_byok_does_not_fail_over(monkeypatch):
 def test_custom_base_url_passes_through(monkeypatch):
     seen = {}
 
-    def fake_summarize(segments, provider, key, model=None, base_url=None):
+    def fake_summarize(segments, provider, key, model=None, base_url=None, **kw):
         seen.update(provider=provider, key=key, base_url=base_url)
         return dict(SUMMARY)
 

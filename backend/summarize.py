@@ -169,9 +169,22 @@ SYSTEM_PROMPT = (
     "point is a headline, the detail adds substance. takeaways is 3-5 "
     "bullets of distilled insight. worth_watching.score is 1-10 judging "
     "information density and originality of the video itself. The transcript "
-    "may be in any language — always write every field of the summary in "
-    "English, translating faithfully."
+    "may be in any language — write every text field of the summary in "
+    "{output_language}, translating faithfully. Keys and timestamps stay "
+    "as specified."
 )
+
+# UI dropdown options; any BCP-47-ish name works since it's passed as text.
+SUMMARY_LANGUAGES = [
+    "English", "हिन्दी (Hindi)", "Español", "Français", "Deutsch",
+    "Português", "Italiano", "日本語 (Japanese)", "한국어 (Korean)",
+    "中文 (Chinese)", "Русский (Russian)", "العربية (Arabic)",
+    "Bahasa Indonesia", "Türkçe", "same language as the video",
+]
+
+
+def _system_prompt(summary_lang: str | None) -> str:
+    return SYSTEM_PROMPT.replace("{output_language}", summary_lang or "English")
 
 
 def _extract_json(text: str) -> dict:
@@ -193,7 +206,7 @@ def _extract_json(text: str) -> dict:
     raise SummarizeError("Model did not return valid JSON.")
 
 
-def _call_anthropic(prompt: str, key: str, model: str) -> str:
+def _call_anthropic(prompt: str, key: str, model: str, system: str) -> str:
     r = httpx.post(
         "https://api.anthropic.com/v1/messages",
         headers={
@@ -204,7 +217,7 @@ def _call_anthropic(prompt: str, key: str, model: str) -> str:
         json={
             "model": model,
             "max_tokens": 3000,
-            "system": SYSTEM_PROMPT,
+            "system": system,
             "messages": [{"role": "user", "content": prompt}],
         },
         timeout=120.0,
@@ -215,12 +228,13 @@ def _call_anthropic(prompt: str, key: str, model: str) -> str:
 
 
 def _call_openai_compatible(
-    prompt: str, key: str, model: str, base: str, provider: str, json_mode: bool = True
+    prompt: str, key: str, model: str, base: str, provider: str, system: str,
+    json_mode: bool = True,
 ) -> str:
     body: dict = {
         "model": model,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ],
         "temperature": 0.3,
@@ -236,13 +250,13 @@ def _call_openai_compatible(
     return r.json()["choices"][0]["message"]["content"]
 
 
-def _call_gemini(prompt: str, key: str, model: str) -> str:
+def _call_gemini(prompt: str, key: str, model: str, system: str) -> str:
     r = httpx.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         params={"key": key},
         headers={"Content-Type": "application/json"},
         json={
-            "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "system_instruction": {"parts": [{"text": system}]},
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"response_mime_type": "application/json"},
         },
@@ -274,6 +288,7 @@ def summarize(
     api_key: str,
     model: str | None = None,
     base_url: str | None = None,
+    summary_lang: str | None = None,
 ) -> dict:
     provider = (provider or "").lower()
     cfg = PROVIDERS.get(provider)
@@ -294,17 +309,19 @@ def summarize(
 
     kind = cfg["kind"]
 
+    system = _system_prompt(summary_lang)
+
     def _call() -> str:
         if kind == "anthropic":
-            return _call_anthropic(prompt, api_key, model)
+            return _call_anthropic(prompt, api_key, model, system)
         if kind == "gemini":
-            return _call_gemini(prompt, api_key, model)
+            return _call_gemini(prompt, api_key, model, system)
         base = base_url or cfg["base"]
         if not base:
             raise SummarizeError("Custom provider needs a base URL.")
         return _call_openai_compatible(
-            prompt, api_key, model, base.rstrip("/"),
-            provider, json_mode=provider != "custom",
+            prompt, api_key, model, base.rstrip("/"), provider, system,
+            json_mode=provider != "custom",
         )
 
     # Models occasionally emit broken JSON; one retry fixes most of it.

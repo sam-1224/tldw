@@ -525,6 +525,12 @@
     </div>
 
     <div class="field">
+      <label for="summaryLang">Summary language</label>
+      <select id="summaryLang"></select>
+      <div class="help">Summaries are written in this language, whatever language the video is in.</div>
+    </div>
+
+    <div class="field">
       <label for="supaKey">Supadata key — optional</label>
       <input id="supaKey" type="password" placeholder="for videos without captions" autocomplete="off" />
       <div class="help">Only used as a fallback when a video has no captions. <a href="https://supadata.ai" target="_blank" rel="noopener">Free 100/mo →</a></div>
@@ -551,6 +557,7 @@
     supadata_key: "",
     model: "",               // free-text override
     base_url: "",
+    summary_lang: "English",
   };
   let config = { free_tier_available: false, free_chain: [], providers: [] };
 
@@ -564,6 +571,7 @@
     if (!config.free_tier_available && settings.mode === "free") settings.mode = "byok";
     buildProviderOptions();
     buildFreeOptions();
+    buildLanguageOptions();
     applySettingsToUI();
   }
 
@@ -594,6 +602,15 @@
     $("freeBanner").textContent = config.free_tier_available
       ? "Running on this server's free tier — no key needed."
       : "This server has no free-tier key configured — add your own key in the other tab.";
+  }
+
+  function buildLanguageOptions() {
+    const sel = $("summaryLang"); sel.innerHTML = "";
+    (config.summary_languages || ["English"]).forEach((l) => {
+      const o = document.createElement("option");
+      o.value = l; o.textContent = l;
+      sel.appendChild(o);
+    });
   }
 
   function buildModelOptions() {
@@ -632,6 +649,8 @@
       $("modelSelect").value = settings.model_select;
     if ([...$("freeModel").options].some((o) => o.value === settings.free_choice))
       $("freeModel").value = settings.free_choice;
+    if ([...$("summaryLang").options].some((o) => o.value === settings.summary_lang))
+      $("summaryLang").value = settings.summary_lang;
     $("llmKey").value = settings.llm_key;
     $("supaKey").value = settings.supadata_key;
     $("model").value = settings.model;
@@ -655,6 +674,7 @@
       supadata_key: $("supaKey").value.trim(),
       model: $("model").value.trim(),
       base_url: $("baseUrl").value.trim(),
+      summary_lang: $("summaryLang").value || "English",
     };
     localStorage.setItem(LS_KEY, JSON.stringify(settings));
     refreshProvLabel();
@@ -725,7 +745,7 @@
     $("results").classList.remove("on");
     if (!url) { showError("Need a link", "Paste a YouTube URL to get started."); return; }
 
-    const body = { url, supadata_key: settings.supadata_key || null };
+    const body = { url, supadata_key: settings.supadata_key || null, summary_lang: settings.summary_lang || null };
     if (settings.mode === "free") {
       if (!config.free_tier_available) {
         showError("No model key yet", "This server has no free tier configured. Open settings and add your own API key — free ones take ~2 minutes.");

@@ -36,7 +36,7 @@ from transcript import (
     extract_video_id,
     TranscriptError,
 )
-from summarize import summarize, SummarizeError, PROVIDERS
+from summarize import summarize, SummarizeError, PROVIDERS, SUMMARY_LANGUAGES
 
 app = FastAPI(title="TL;DW", description="Too long; didn't watch.")
 
@@ -61,6 +61,7 @@ class SummarizeRequest(BaseModel):
     supadata_key: str | None = None
     model: str | None = None
     base_url: str | None = None
+    summary_lang: str | None = None
     lang: str = "en"
 
 
@@ -77,6 +78,7 @@ def config():
         "free_tier_available": bool(free_chain),
         "default_provider": _default_provider(),
         "free_chain": free_chain,
+        "summary_languages": SUMMARY_LANGUAGES,
         "providers": [
             {
                 "id": pid,
@@ -151,7 +153,8 @@ def do_summarize(req: SummarizeRequest):
             # failover providers use their own defaults.
             model = req.model if attempt_provider == provider else None
             summary = summarize(
-                segments, attempt_provider, key, model=model, base_url=base_url
+                segments, attempt_provider, key, model=model, base_url=base_url,
+                summary_lang=req.summary_lang,
             )
             break
         except SummarizeError as exc:
