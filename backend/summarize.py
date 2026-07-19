@@ -2,11 +2,16 @@
 Provider-agnostic summarisation.
 
 One tiny function talks to whichever LLM the user picked. We use plain HTTP
-(httpx) instead of four separate SDKs so the dependency list stays short and
-the code is easy to read and fork.
+(httpx) instead of separate SDKs so the dependency list stays short and the
+code is easy to read and fork.
 
-Supported providers: anthropic, openai, gemini, groq.
-The model for each is overridable, but sensible cheap defaults are baked in.
+Providers live in PROVIDERS below. Most frontier APIs speak the OpenAI
+chat-completions dialect, so one generic call covers them; Anthropic and
+Gemini keep dedicated request shapes. The `custom` provider takes any
+OpenAI-compatible base_url (Ollama, LM Studio, vLLM, ...) with an optional key.
+
+Model catalogs are data, not architecture: edit PROVIDERS when models change.
+Free-text model override is always honoured.
 """
 
 from __future__ import annotations
@@ -15,11 +20,95 @@ import json
 import re
 import httpx
 
-DEFAULT_MODELS = {
-    "anthropic": "claude-3-5-haiku-latest",
-    "openai": "gpt-4o-mini",
-    "gemini": "gemini-1.5-flash",
-    "groq": "llama-3.3-70b-versatile",
+# kind: "oai" = OpenAI-compatible chat/completions; others have dedicated calls.
+# models: leading choices surfaced in the UI dropdown (free-text override kept).
+# Model ids verified July 2026 — update here when providers rotate models.
+PROVIDERS: dict[str, dict] = {
+    "gemini": {
+        "label": "Google Gemini",
+        "kind": "gemini",
+        "default_model": "gemini-2.5-flash",
+        "models": [
+            "gemini-2.5-flash",
+            "gemini-3-flash",
+            "gemini-3.5-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-pro",
+        ],
+    },
+    "groq": {
+        "label": "Groq (fast open models)",
+        "kind": "oai",
+        "base": "https://api.groq.com/openai/v1",
+        "default_model": "llama-3.3-70b-versatile",
+        "models": [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+        ],
+    },
+    "cerebras": {
+        "label": "Cerebras (fast open models)",
+        "kind": "oai",
+        "base": "https://api.cerebras.ai/v1",
+        "default_model": "llama-3.3-70b",
+        "models": ["llama-3.3-70b", "llama3.1-8b", "gpt-oss-120b", "qwen-3-32b"],
+    },
+    "openai": {
+        "label": "OpenAI",
+        "kind": "oai",
+        "base": "https://api.openai.com/v1",
+        "default_model": "gpt-5.6",
+        "models": ["gpt-5.6", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-4.1-mini"],
+    },
+    "anthropic": {
+        "label": "Anthropic Claude",
+        "kind": "anthropic",
+        "default_model": "claude-sonnet-5",
+        "models": [
+            "claude-sonnet-5",
+            "claude-fable-5",
+            "claude-opus-4-8",
+            "claude-haiku-4-5",
+        ],
+    },
+    "xai": {
+        "label": "xAI Grok",
+        "kind": "oai",
+        "base": "https://api.x.ai/v1",
+        "default_model": "grok-4-fast",
+        "models": ["grok-4-fast", "grok-4-5", "grok-4", "grok-3-mini"],
+    },
+    "moonshot": {
+        "label": "Moonshot Kimi",
+        "kind": "oai",
+        "base": "https://api.moonshot.ai/v1",
+        "default_model": "kimi-k3",
+        "models": ["kimi-k3", "kimi-k2.6"],
+    },
+    "deepseek": {
+        "label": "DeepSeek",
+        "kind": "oai",
+        "base": "https://api.deepseek.com/v1",
+        "default_model": "deepseek-v4-flash",
+        "models": ["deepseek-v4-flash", "deepseek-v4-pro"],
+    },
+    "openrouter": {
+        "label": "OpenRouter",
+        "kind": "oai",
+        "base": "https://openrouter.ai/api/v1",
+        "default_model": "meta-llama/llama-3.3-70b-instruct:free",
+        "models": ["meta-llama/llama-3.3-70b-instruct:free"],
+    },
+    "custom": {
+        "label": "Custom / local (OpenAI-compatible)",
+        "kind": "oai",
+        "base": None,  # supplied per-request (e.g. http://localhost:11434/v1)
+        "default_model": "",
+        "models": [],
+        "key_optional": True,
+    },
 }
 
 # Keep prompts affordable. Most transcripts fit; very long ones get trimmed.
@@ -27,7 +116,9 @@ MAX_CHARS = 48_000
 
 
 class SummarizeError(Exception):
-    pass
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status
 
 
 def _format_timestamp(seconds: float) -> str:
@@ -104,22 +195,25 @@ def _call_anthropic(prompt: str, key: str, model: str) -> str:
     return "".join(b.get("text", "") for b in data.get("content", []))
 
 
-def _call_openai_compatible(prompt: str, key: str, model: str, base: str) -> str:
-    r = httpx.post(
-        f"{base}/chat/completions",
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json={
-            "model": model,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            "response_format": {"type": "json_object"},
-            "temperature": 0.3,
-        },
-        timeout=120.0,
-    )
-    _raise_for_llm(r, "provider")
+def _call_openai_compatible(
+    prompt: str, key: str, model: str, base: str, provider: str, json_mode: bool = True
+) -> str:
+    body: dict = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.3,
+    }
+    # Local servers (Ollama/LM Studio) don't all accept response_format.
+    if json_mode:
+        body["response_format"] = {"type": "json_object"}
+    headers = {"Content-Type": "application/json"}
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    r = httpx.post(f"{base}/chat/completions", headers=headers, json=body, timeout=120.0)
+    _raise_for_llm(r, provider)
     return r.json()["choices"][0]["message"]["content"]
 
 
@@ -142,13 +236,16 @@ def _call_gemini(prompt: str, key: str, model: str) -> str:
 
 def _raise_for_llm(resp: httpx.Response, provider: str) -> None:
     if resp.status_code == 401:
-        raise SummarizeError(f"That {provider} API key was rejected.")
+        raise SummarizeError(f"That {provider} API key was rejected.", status=401)
     if resp.status_code == 429:
-        raise SummarizeError(f"{provider} rate limit hit. Try again in a moment.")
+        raise SummarizeError(
+            f"{provider} rate limit hit. Try again in a moment.", status=429
+        )
     if resp.status_code >= 400:
         raise SummarizeError(
             f"{provider} request failed ({resp.status_code}). "
-            "Check the model name and your key."
+            "Check the model name and your key.",
+            status=resp.status_code,
         )
 
 
@@ -157,30 +254,41 @@ def summarize(
     provider: str,
     api_key: str,
     model: str | None = None,
+    base_url: str | None = None,
 ) -> dict:
     provider = (provider or "").lower()
-    if provider not in DEFAULT_MODELS:
+    cfg = PROVIDERS.get(provider)
+    if cfg is None:
         raise SummarizeError(f"Unknown provider '{provider}'.")
-    if not api_key:
+    if not api_key and not cfg.get("key_optional"):
         raise SummarizeError("No LLM API key provided.")
 
-    model = model or DEFAULT_MODELS[provider]
+    model = model or cfg["default_model"]
+    if not model:
+        raise SummarizeError(f"Provider '{provider}' needs a model name.")
+
     text, truncated = build_timestamped_text(segments)
     prompt = (
         f"Transcript{' (truncated to keep cost down)' if truncated else ''}:\n\n"
         f"{text}"
     )
 
-    if provider == "anthropic":
+    kind = cfg["kind"]
+    if kind == "anthropic":
         raw = _call_anthropic(prompt, api_key, model)
-    elif provider == "openai":
-        raw = _call_openai_compatible(prompt, api_key, model, "https://api.openai.com/v1")
-    elif provider == "groq":
-        raw = _call_openai_compatible(prompt, api_key, model, "https://api.groq.com/openai/v1")
-    elif provider == "gemini":
+    elif kind == "gemini":
         raw = _call_gemini(prompt, api_key, model)
+    else:  # OpenAI-compatible
+        base = base_url or cfg["base"]
+        if not base:
+            raise SummarizeError("Custom provider needs a base URL.")
+        raw = _call_openai_compatible(
+            prompt, api_key, model, base.rstrip("/"),
+            provider, json_mode=provider != "custom",
+        )
 
     result = _extract_json(raw)
     result["truncated"] = truncated
     result["model"] = model
+    result["provider"] = provider
     return result
