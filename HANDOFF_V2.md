@@ -8,8 +8,16 @@
 > anthropic/xai/moonshot/deepseek/openrouter/custom base_url for local LLMs)
 > with model catalogs served via `GET /api/config` and a Free/BYOK switch in
 > the settings drawer. Puter.js was evaluated and rejected (signup friction).
-> Backend tests live in `backend/tests/`. Stage 1's remaining scope
-> (full transcript in response, CI, transcript tests) still applies.
+> Backend tests live in `backend/tests/`.
+>
+> **Stage 1 delivered 2026-07-19** (tag `v0.2-stage1`): `/api/summarize`
+> returns real `segments` + `transcript_language`; transcript panel renders
+> genuine deep-linked lines with chunked lazy render; any-language caption
+> fallback (Hindi-only videos work, summary translated to English);
+> `build_llm_attempts()` seam in `backend/main.py` for future `/api/ask`;
+> `backend/tests/test_transcript.py`; GitHub Actions CI (3.12/3.14). Also
+> shipped beyond plan: richer summary contract (breakdown/takeaways/worth
+> _watching), dark mode toggle. Next: Stage 2 (frontend platform/redesign).
 
 **Audience:** Claude Code. Read fully before writing any code.
 **Owner:** Saumitra. He reviews and approves at every stage gate.

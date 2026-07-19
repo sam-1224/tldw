@@ -1,5 +1,12 @@
 # Environmental notes
 
+- **Non-English videos verified 2026-07-19**: Hindi-only video
+  (P12Flimn_jQ) transcribes via any-language fallback (`language: "hi"`),
+  summary translated to English, badge shows "captions · HI → EN".
+- **LLMs occasionally emit broken JSON** even with JSON mode on (seen once
+  with Gemini on a Hindi transcript) — `summarize()` retries once, parser
+  raises clean SummarizeError instead of crashing with a 500.
+
 - **Docker not installed** on this machine (Windows 11, 2026-07-19) — Docker
   smoke test skipped, not a code defect. Two-stage Dockerfile untouched.
 - **Live free-mode verified 2026-07-19**: keyless summary of a real video via
