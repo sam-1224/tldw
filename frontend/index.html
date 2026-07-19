@@ -20,6 +20,9 @@
     --line: #e4e0d6;
     --line-strong: #d4cfc1;
     --danger: #c0392b;
+    --card: #ffffff;
+    --tldr-bg: #16161d;
+    --tldr-ink: #faf8f3;
     --radius: 16px;
     --radius-sm: 10px;
     --shadow: 0 1px 2px rgba(22, 22, 29, .04), 0 8px 30px rgba(22, 22, 29, .06);
@@ -30,8 +33,29 @@
     --ease: cubic-bezier(.2, .7, .2, 1);
   }
 
+  [data-theme="dark"] {
+    --paper: #0b0b10;
+    --paper-2: #14141b;
+    --ink: #f5f2ea;
+    --ink-soft: #b3b0ba;
+    --ink-faint: #9a97a3;
+    --marigold-deep: #ffb52e;
+    --marigold-wash: rgba(242, 163, 15, 0.14);
+    --line: rgba(245, 242, 234, 0.08);
+    --line-strong: rgba(245, 242, 234, 0.18);
+    --danger: #ff5c5c;
+    --card: #14141b;
+    --tldr-bg: #f5f2ea;
+    --tldr-ink: #16161d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 30px rgba(0, 0, 0, .35);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, .4), 0 18px 48px rgba(0, 0, 0, .5), 0 0 40px rgba(242, 163, 15, .07);
+  }
+
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  body, .console, .vid, .worth, .error, .drawer, .field input, .field select {
+    transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
+  }
 
   body {
     margin: 0;
@@ -98,7 +122,7 @@
 
   /* ---------- scrubber input ---------- */
   .console {
-    margin: 38px auto 0; max-width: 640px; background: #fff;
+    margin: 38px auto 0; max-width: 640px; background: var(--card);
     border: 1px solid var(--line); border-radius: var(--radius);
     box-shadow: var(--shadow); padding: 10px 10px 10px 18px;
   }
@@ -121,7 +145,7 @@
     padding: 13px 22px; border-radius: 11px;
     transition: transform .18s var(--ease), background .2s;
   }
-  .go:hover:not(:disabled) { transform: translateY(-1px); background: #000; }
+  .go:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.12); }
   .go:disabled { opacity: .5; cursor: not-allowed; }
 
   /* ambient timeline under input */
@@ -137,7 +161,7 @@
   .timeline .tick {
     position: absolute; top: 50%; width: 11px; height: 11px;
     margin: -5.5px 0 0 -5.5px; border-radius: 50%;
-    background: var(--marigold); border: 2px solid #fff;
+    background: var(--marigold); border: 2px solid var(--card);
     box-shadow: 0 1px 4px rgba(0,0,0,.18);
     transform: scale(0); transition: transform .4s var(--ease);
     cursor: pointer;
@@ -173,7 +197,7 @@
 
   /* ---------- error ---------- */
   .error { display: none; margin: 28px auto 0; max-width: 640px;
-    background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--danger);
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--danger);
     border-radius: var(--radius-sm); padding: 16px 18px; box-shadow: var(--shadow); }
   .error.on { display: block; }
   .error h4 { margin: 0 0 4px; font-family: var(--display); font-size: 15px; }
@@ -186,7 +210,7 @@
 
   .vid {
     display: flex; gap: 16px; align-items: center; margin-bottom: 26px;
-    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
     padding: 14px; box-shadow: var(--shadow);
   }
   .vid img { width: 132px; height: 74px; object-fit: cover; border-radius: 9px; flex: none; background: var(--paper-2); }
@@ -204,7 +228,7 @@
   }
 
   .tldr {
-    background: var(--ink); color: var(--paper); border-radius: var(--radius);
+    background: var(--tldr-bg); color: var(--tldr-ink); border-radius: var(--radius);
     padding: 24px 26px; margin-bottom: 30px; box-shadow: var(--shadow-lift);
   }
   .tldr .section-label { color: var(--marigold); }
@@ -240,7 +264,7 @@
   }
   .worth {
     display: flex; gap: 16px; align-items: center; margin-bottom: 30px;
-    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
     padding: 16px 18px; box-shadow: var(--shadow);
   }
   .worth-score {
@@ -268,7 +292,8 @@
   details.transcript summary::before { content: "+ "; color: var(--marigold-deep); }
   details.transcript[open] summary::before { content: "− "; }
   .tline { display: flex; gap: 14px; padding: 7px 0; font-size: 14px; border-bottom: 1px dashed var(--line); }
-  .tline .stamp { background: transparent; min-width: 52px; pointer-events: none; }
+  .tline .stamp { background: transparent; min-width: 52px; }
+  .tline .stamp.note { pointer-events: none; }
   .transcript-body { margin-top: 14px; max-height: 360px; overflow-y: auto; padding-right: 8px; }
 
   footer {
@@ -299,7 +324,7 @@
   }
   .field input, .field select {
     width: 100%; padding: 12px 14px; border: 1px solid var(--line-strong);
-    border-radius: var(--radius-sm); background: #fff; font-family: var(--mono);
+    border-radius: var(--radius-sm); background: var(--card); font-family: var(--mono);
     font-size: 14px; color: var(--ink); outline: none; transition: border-color .2s;
   }
   .field input:focus, .field select:focus { border-color: var(--marigold); }
@@ -311,7 +336,7 @@
     font-weight: 600; font-size: 15px; padding: 14px; border-radius: var(--radius-sm);
     margin-top: 6px; transition: background .2s;
   }
-  .save:hover { background: #000; }
+  .save:hover { filter: brightness(1.12); }
   .saved-flag {
     text-align: center; font-family: var(--mono); font-size: 12px;
     color: var(--marigold-deep); height: 16px; margin-top: 10px; opacity: 0; transition: opacity .3s;
@@ -330,7 +355,7 @@
     font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink-soft);
     padding: 10px; border-radius: 8px; transition: background .2s, color .2s;
   }
-  .mode-btn.on { background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+  .mode-btn.on { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
   .mode-btn.on::before { content: "● "; color: var(--marigold); font-size: 10px; vertical-align: 2px; }
   .free-banner {
     margin: 0 0 20px; padding: 12px 14px; border-radius: var(--radius-sm);
@@ -357,9 +382,15 @@
   <div class="wrap">
     <header>
       <div class="brand">TL<span class="semi">;</span>DW <small>too long · didn't watch</small></div>
+      <div style="display:flex; gap:10px">
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode">
+        <svg id="moonIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
       <button class="icon-btn" id="gear" aria-label="Open settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
+      </div>
     </header>
 
     <section class="hero">
@@ -755,7 +786,9 @@
     $("thumb").src = d.thumbnail || "";
     $("vtitle").textContent = d.title || "Untitled video";
     $("vauthor").textContent = [d.author, dur ? fmt(dur) : null].filter(Boolean).join(" · ");
-    $("vbadge").textContent = d.transcript_source === "supadata" ? "AI transcript (Supadata)" : "captions";
+    const langTag = d.transcript_language && d.transcript_language.toLowerCase().slice(0,2) !== "en"
+      ? ` · ${d.transcript_language.toUpperCase()} → EN` : "";
+    $("vbadge").textContent = (d.transcript_source === "supadata" ? "AI transcript (Supadata)" : "captions") + langTag;
 
     const s = d.summary || {};
     $("tldr").textContent = s.tldr || "No summary returned.";
@@ -822,20 +855,46 @@
       topicsEl.appendChild(el);
     });
 
-    // transcript note (we only have the summary client-side; show points-derived note)
+    // full real transcript, rendered in chunks so huge videos don't jank
     const trEl = $("transcript"); trEl.innerHTML = "";
     if (s.truncated) {
       const n = document.createElement("div");
       n.className = "tline";
-      n.innerHTML = '<span class="stamp">note</span><span>Transcript was long, so it was trimmed before summarizing to keep cost down.</span>';
+      n.innerHTML = '<span class="stamp note">note</span><span>Transcript was long, so it was trimmed before summarizing to keep cost down. Full transcript below.</span>';
       trEl.appendChild(n);
     }
-    pts.forEach((p) => {
-      const line = document.createElement("div"); line.className = "tline";
-      const st = document.createElement("span"); st.className = "stamp"; st.textContent = p.timestamp || "—";
-      const tx = document.createElement("span"); tx.textContent = p.point || "";
-      line.appendChild(st); line.appendChild(tx); trEl.appendChild(line);
-    });
+    const segs = Array.isArray(d.segments) ? d.segments : [];
+    const CHUNK = 200;
+    let rendered = 0;
+    function renderChunk() {
+      const frag = document.createDocumentFragment();
+      const end = Math.min(rendered + CHUNK, segs.length);
+      for (; rendered < end; rendered++) {
+        const seg = segs[rendered];
+        const line = document.createElement("div"); line.className = "tline";
+        const st = document.createElement("a");
+        st.className = "stamp"; st.href = watchUrl(seg.start);
+        st.target = "_blank"; st.rel = "noopener";
+        st.textContent = fmt(seg.start);
+        const tx = document.createElement("span"); tx.textContent = seg.text;
+        line.appendChild(st); line.appendChild(tx); frag.appendChild(line);
+      }
+      trEl.insertBefore(frag, sentinel);
+    }
+    const sentinel = document.createElement("div");
+    trEl.appendChild(sentinel);
+    if (segs.length) {
+      renderChunk();
+      new IntersectionObserver((entries, obs) => {
+        if (!entries[0].isIntersecting) return;
+        if (rendered >= segs.length) { obs.disconnect(); return; }
+        renderChunk();
+      }, { root: trEl.parentElement }).observe(sentinel);
+    } else {
+      const n = document.createElement("div"); n.className = "tline";
+      n.innerHTML = "<span>Transcript unavailable.</span>";
+      trEl.appendChild(n);
+    }
 
     $("results").classList.add("on");
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -847,6 +906,25 @@
   $("modeFree").onclick = () => setMode("free");
   $("modeByok").onclick = () => setMode("byok");
 
+  // theme: saved choice wins, else follow the OS
+  const THEME_KEY = "tldw.theme";
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    $("moonIcon").style.display = theme === "dark" ? "none" : "";
+    $("sunIcon").style.display = theme === "dark" ? "" : "none";
+  }
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    const os = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    applyTheme(saved || os);
+  }
+  $("themeToggle").onclick = () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  };
+
+  initTheme();
   loadSettings();
   fetchConfig();
 </script>
