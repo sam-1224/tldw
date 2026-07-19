@@ -17,7 +17,19 @@
 > `build_llm_attempts()` seam in `backend/main.py` for future `/api/ask`;
 > `backend/tests/test_transcript.py`; GitHub Actions CI (3.12/3.14). Also
 > shipped beyond plan: richer summary contract (breakdown/takeaways/worth
-> _watching), dark mode toggle. Next: Stage 2 (frontend platform/redesign).
+> _watching), dark mode toggle, summary-language selector (`summary_lang`,
+> catalog in `SUMMARY_LANGUAGES`), 10h-video verification (12k segments:
+> truncation flag + chunked DOM render, 20ms).
+>
+> **Stage 2 scaffold landed 2026-07-19**: `frontend/` is now Vite + React 18
+> + TypeScript + Tailwind v4 (`@tailwindcss/vite`), full feature parity with
+> v1 (v1 CSS carried over 1:1 in `src/app.css`; old app kept at
+> `frontend/legacy/index.html` as zero-build fallback). FastAPI serves
+> `frontend/dist` when built. Two-stage Dockerfile (node build → python).
+> Bundle: 52KB gzip JS (budget 250KB). Deliberate deviations: no React
+> Query/Zustand yet (useState suffices at this size — add when Stage 3
+> state gets hairy); shadcn/Motion/GSAP/Lottie/redesign still to come, plus
+> Playwright smoke suite and Lighthouse gate before calling §5.7 done.
 
 **Audience:** Claude Code. Read fully before writing any code.
 **Owner:** Saumitra. He reviews and approves at every stage gate.

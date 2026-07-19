@@ -40,7 +40,16 @@ from summarize import summarize, SummarizeError, PROVIDERS, SUMMARY_LANGUAGES
 
 app = FastAPI(title="TL;DW", description="Too long; didn't watch.")
 
-FRONTEND = Path(__file__).parent.parent / "frontend" / "index.html"
+_FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+FRONTEND_DIST = _FRONTEND_DIR / "dist"
+FRONTEND_LEGACY = _FRONTEND_DIR / "legacy" / "index.html"
+
+if (FRONTEND_DIST / "assets").is_dir():
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount(
+        "/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets"
+    )
 
 # Free-mode failover order. Only providers with an env key participate.
 FREE_CHAIN = ["gemini", "groq", "cerebras"]
@@ -95,8 +104,11 @@ def config():
 
 @app.get("/")
 def index():
-    if FRONTEND.exists():
-        return FileResponse(FRONTEND)
+    # Built React app when present; pre-Stage-2 static file as fallback.
+    if (FRONTEND_DIST / "index.html").exists():
+        return FileResponse(FRONTEND_DIST / "index.html")
+    if FRONTEND_LEGACY.exists():
+        return FileResponse(FRONTEND_LEGACY)
     return JSONResponse({"error": "frontend not found"}, status_code=404)
 
 

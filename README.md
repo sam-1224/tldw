@@ -53,16 +53,24 @@ docker compose up --build
 
 Open http://localhost:8000, click the gear, paste an API key, summarize.
 
-### Option 2 — Local Python
+### Option 2 — Local dev
 
 ```bash
+# backend (serves API + built frontend when frontend/dist exists)
 cd backend
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
+
+# frontend (Vite + React + TS; proxies /api to :8000)
+cd frontend
+npm install
+npm run dev          # http://localhost:5173 with hot reload
+npm run build        # emits frontend/dist for FastAPI to serve on :8000
 ```
 
-Then open http://localhost:8000.
+Zero-frontend-build fallback: without `frontend/dist`, FastAPI serves the
+pre-Stage-2 static app from `frontend/legacy/index.html`.
 
 ---
 
