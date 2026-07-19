@@ -1,5 +1,16 @@
 # TL;DW — Master Handoff & Staged Roadmap (v2)
 
+> **2026-07-19 deviation (approved by Saumitra):** free-first shipped before
+> Stage 0/1. The app now works keylessly for visitors via server env keys with
+> a failover chain (gemini → groq → cerebras, `FREE_CHAIN` in
+> `backend/main.py`), plus a multi-provider BYOK registry
+> (`PROVIDERS` in `backend/summarize.py`: gemini/groq/cerebras/openai/
+> anthropic/xai/moonshot/deepseek/openrouter/custom base_url for local LLMs)
+> with model catalogs served via `GET /api/config` and a Free/BYOK switch in
+> the settings drawer. Puter.js was evaluated and rejected (signup friction).
+> Backend tests live in `backend/tests/`. Stage 1's remaining scope
+> (full transcript in response, CI, transcript tests) still applies.
+
 **Audience:** Claude Code. Read fully before writing any code.
 **Owner:** Saumitra. He reviews and approves at every stage gate.
 **Prime directive:** Never advance to the next stage until the current stage's

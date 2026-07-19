@@ -77,6 +77,11 @@ HANDOFF_V2.md §5.5 and must be reflected in the README when it lands.
 
 ## Current position
 
-Stages live in `HANDOFF_V2.md`: 0 baseline → 1 correctness+tests → 2 frontend
-platform/redesign → 3 top-5 features → 4 MV3 extension → 5 traffic-gated
-bets. **Start at Stage 0 unless a tag says otherwise.**
+Free-first shipped 2026-07-19 (see deviation note atop `HANDOFF_V2.md`):
+keyless visitor summaries via env-key failover chain + 10-provider BYOK
+registry with model catalogs (`/api/config`) and a Free/BYOK settings switch.
+Backend tests in `backend/tests/` (`python -m pytest tests -q`).
+
+Remaining stages live in `HANDOFF_V2.md`: 1 correctness+tests (transcript in
+response, CI) → 2 frontend platform/redesign → 3 top-5 features → 4 MV3
+extension → 5 traffic-gated bets.

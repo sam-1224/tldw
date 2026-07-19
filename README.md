@@ -16,26 +16,29 @@ library first, which costs nothing and covers the majority of videos. It only
 falls back to **Supadata** (Whisper AI transcription) when a video has no
 captions — and only if you provide a Supadata key.
 
-For the LLM step it's **provider-agnostic**: Anthropic, OpenAI, Gemini, or
-Groq. For a genuinely free stack, use **Gemini Flash** or **Groq** — both have
-generous free tiers.
+For the LLM step it's **provider-agnostic**: Gemini, Groq, Cerebras, OpenAI,
+Anthropic Claude, xAI Grok, Moonshot Kimi, DeepSeek, OpenRouter, or any
+OpenAI-compatible server (Ollama, LM Studio, vLLM) via the custom provider.
 
 ```
 paste URL ──► youtube-transcript-api (free)
                  └─ no captions? ──► Supadata AI fallback (optional key)
-              └─► your chosen LLM ──► TL;DR + timestamped key moments
+              └─► free-tier model (no key) or your chosen LLM
+              └─► TL;DR + timestamped key moments
 ```
 
 ## Who provides the key?
 
-This is the usual open-source question. TL;DW is **BYOK**: each user enters
-their own keys in the in-app settings drawer, and they're stored in that
-person's browser (`localStorage`) — never on a server. You can also drop keys
-in `.env` if you want your instance to provide a default for everyone. A key
-sent from the browser always overrides the server's.
+**Visitors don't need one.** Free mode: the instance owner sets one free-tier
+key in `.env` (Gemini's free tier is generous — no card, ~1,500 req/day) and
+every visitor summarizes keylessly. Add `GROQ_API_KEY` / `CEREBRAS_API_KEY`
+too and the server fails over automatically when a free tier rate-limits.
 
-That means you can publish a public instance **without paying for anyone
-else's usage** and without holding their secrets.
+**BYOK for premium models.** Each user can enter their own key in the in-app
+settings drawer — stored in that person's browser (`localStorage`), never on a
+server, and a browser key always overrides the server's. So you can publish a
+public instance without holding anyone's secrets, and users who want
+Claude/GPT/Grok quality pay only their own provider.
 
 ---
 
@@ -87,12 +90,22 @@ Everything is optional — the app works with browser-side keys alone.
 
 | Variable | Purpose |
 |---|---|
-| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` / `GROQ_API_KEY` | Default LLM key for your instance |
+| `GEMINI_API_KEY` / `GROQ_API_KEY` / `CEREBRAS_API_KEY` | Free-mode chain — keyless visitor summaries with rate-limit failover |
+| `DEFAULT_PROVIDER` | First provider keyless requests try (default `gemini`) |
+| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `XAI_API_KEY` / `MOONSHOT_API_KEY` / `DEEPSEEK_API_KEY` / `OPENROUTER_API_KEY` | Env fallback for those providers |
 | `SUPADATA_API_KEY` | Default fallback transcript key |
 
-Default models (override per-request in the settings drawer):
-`claude-3-5-haiku-latest`, `gpt-4o-mini`, `gemini-1.5-flash`,
-`llama-3.3-70b-versatile`.
+Per-provider model catalogs (with defaults) live in `backend/summarize.py`
+(`PROVIDERS`) and are served to the UI via `GET /api/config`; the settings
+drawer offers dropdowns plus a free-text model override.
+
+### Tests
+
+```bash
+cd backend
+pip install pytest respx
+python -m pytest tests -q
+```
 
 ---
 
