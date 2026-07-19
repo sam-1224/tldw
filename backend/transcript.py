@@ -173,6 +173,12 @@ def get_transcript(
             "This video has captions disabled. Add a Supadata key in settings "
             "to transcribe it with AI."
         )
+    if "blocking requests from your ip" in free_reason.lower():
+        raise TranscriptError(
+            "YouTube is temporarily rate-limiting this server's IP (too many "
+            "transcript requests). Wait a few minutes and try again, or add a "
+            "Supadata key in settings to bypass it."
+        )
     raise TranscriptError(
         f"Couldn't fetch a transcript ({free_reason}). "
         "Adding a Supadata key in settings enables an AI fallback."

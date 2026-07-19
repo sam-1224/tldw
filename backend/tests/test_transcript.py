@@ -135,6 +135,19 @@ def test_supadata_bad_key(monkeypatch):
         get_transcript(f"https://youtu.be/{VID}", supadata_key="bad")
 
 
+def test_ip_block_maps_to_friendly_error(monkeypatch):
+    class API:
+        def fetch(self, video_id, languages=None):
+            raise RuntimeError(
+                "\nCould not retrieve a transcript... "
+                "YouTube is blocking requests from your IP..."
+            )
+
+    _patch_api(monkeypatch, API)
+    with pytest.raises(TranscriptError, match="rate-limiting"):
+        get_transcript(f"https://youtu.be/{VID}")
+
+
 def test_bad_url_raises():
     with pytest.raises(TranscriptError, match="bad_url"):
         get_transcript("https://vimeo.com/999")
