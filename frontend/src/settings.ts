@@ -41,9 +41,10 @@ const THEME_KEY = "tldw.theme";
 export function initialTheme(): "light" | "dark" {
   const saved = localStorage.getItem(THEME_KEY);
   if (saved === "dark" || saved === "light") return saved;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  // dark-first: only an explicit OS light preference gets the light theme
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
 }
 
 export function persistTheme(theme: "light" | "dark") {

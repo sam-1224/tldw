@@ -143,7 +143,8 @@ export default function App() {
 
   return (
     <div className="wrap">
-      <header>
+      <div className="aurora" aria-hidden="true"><div className="blob" /></div>
+      <header className="glass">
         <div className="brand">
           TL<span className="semi">;</span>DW <small>too long · didn't watch</small>
         </div>
@@ -168,7 +169,8 @@ export default function App() {
       <section className={"hero" + (result ? " compact" : "")}>
         <div className="eyebrow">paste a link · skip the watch</div>
         <h1>
-          Watch less.<br /><span className="mark">Know more.</span>
+          Watch less.<br />
+          <span className="mark"><span className="shiny">Know</span> more.</span>
         </h1>
         <p className="sub">
           Drop a YouTube URL. Get the gist, the key moments, and timestamps you can jump to.

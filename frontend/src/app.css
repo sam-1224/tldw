@@ -47,6 +47,7 @@
   }
 
   * { box-sizing: border-box; }
+  html, body { overflow-x: clip; }
   html { scroll-behavior: smooth; }
   body, .console, .vid, .worth, .error, .drawer, .field input, .field select {
     transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
@@ -481,4 +482,158 @@ h1 .mark {
 @media (prefers-reduced-motion: reduce) {
   h1 .mark { animation: none; background-size: 100% 100%; }
   .timeline .fill.loading { transition: none; }
+}
+
+/* ================= Revamp — aurora, glass, beams, shine ================= */
+
+/* --- aurora background (spicetify-style diffused glow blobs) --- */
+.aurora {
+  position: fixed;
+  inset: -20vh -20vw;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(90px) saturate(1.15);
+  opacity: .55;
+}
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  width: 55vw;
+  height: 55vh;
+  border-radius: 50%;
+}
+.aurora::before {
+  top: -6vh; left: -4vw;
+  background: radial-gradient(closest-side, rgba(242, 163, 15, .55), transparent 70%);
+  animation: drift-a 26s ease-in-out infinite alternate;
+}
+.aurora::after {
+  top: 4vh; right: -8vw;
+  background: radial-gradient(closest-side, rgba(124, 92, 255, .38), transparent 70%);
+  animation: drift-b 32s ease-in-out infinite alternate;
+}
+.aurora .blob {
+  position: absolute;
+  bottom: -10vh; left: 30vw;
+  width: 46vw; height: 40vh;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 94, 58, .28), transparent 70%);
+  animation: drift-c 38s ease-in-out infinite alternate;
+}
+[data-theme="dark"] .aurora { opacity: .5; }
+:root:not([data-theme="dark"]) .aurora { opacity: .32; }
+@keyframes drift-a { to { transform: translate(9vw, 7vh) scale(1.15); } }
+@keyframes drift-b { to { transform: translate(-7vw, 10vh) scale(1.2); } }
+@keyframes drift-c { to { transform: translate(-10vw, -6vh) scale(1.1); } }
+
+/* --- glass sticky nav --- */
+header.glass {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 16px 0;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--paper) 62%, transparent);
+  border-bottom: 1px solid var(--hairline, var(--line));
+}
+
+/* --- hero spotlight (aceternity-style) --- */
+.hero { position: relative; }
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -30%; left: 50%;
+  width: 130%; height: 130%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(ellipse 45% 38% at 50% 18%, rgba(242,163,15,.14), transparent 65%);
+  animation: spot-in 1.4s var(--ease) both;
+}
+@keyframes spot-in { from { opacity: 0; transform: translateX(-50%) scale(.9); } }
+
+/* hero type: bigger optical display */
+h1 {
+  font-size: clamp(44px, 9vw, 96px);
+  font-variation-settings: "opsz" 96;
+}
+
+/* --- shiny text (magicui-style shimmer over "Know") --- */
+.shiny {
+  background: linear-gradient(110deg,
+    var(--ink) 42%, var(--marigold) 50%, var(--ink) 58%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 5.5s linear 1.4s infinite;
+}
+@keyframes shine { to { background-position: -250% 0; } }
+
+/* --- border beam on the TL;DR card --- */
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.bento-card.tldr { position: relative; }
+.bento-card.tldr::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--beam-angle),
+    transparent 0%, transparent 72%,
+    var(--marigold) 86%, #ffb52e 90%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: beam 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes beam { to { --beam-angle: 360deg; } }
+
+/* --- marigold CTA + card hover lift --- */
+.go {
+  background: var(--marigold);
+  color: #16161d;
+  box-shadow: 0 0 24px rgba(242, 163, 15, .35);
+}
+.go:hover:not(:disabled) {
+  background: #ffb52e;
+  filter: none;
+  box-shadow: 0 0 40px rgba(242, 163, 15, .5);
+}
+.bento-card {
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease),
+    background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
+}
+.bento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+.bento-card.tldr:hover {
+  box-shadow: var(--shadow-lift), 0 0 56px rgba(242, 163, 15, .32);
+}
+
+/* console gets a faint glow ring so the scrubber reads as the centerpiece */
+.console {
+  box-shadow: var(--shadow), 0 0 44px rgba(242, 163, 15, .10);
+}
+
+[data-theme="dark"] { --hairline: rgba(245, 242, 234, .08); }
+[data-theme="dark"] h1 .mark {
+  /* solid band reads muddy on near-black: glowing underline stroke instead */
+  background-image: linear-gradient(transparent 86%, var(--marigold) 86%);
+  text-shadow: 0 0 36px rgba(242, 163, 15, .30);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora::before, .aurora::after, .aurora .blob { animation: none; }
+  .shiny { animation: none; background: none; color: inherit; }
+  .bento-card.tldr::before { animation: none; opacity: 0; }
+  .hero::before { animation: none; }
 }

@@ -152,7 +152,17 @@ export default function Results({ d }: { d: SummarizeResult }) {
           <p className="section-label">Key moments</p>
           <div className="points">
             {(s.key_points ?? []).map((p, i) => (
-              <div className="point" key={i}>
+              <motion.div
+                className="point"
+                key={i}
+                initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: 14 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={
+                  reduced
+                    ? { duration: 0.1 }
+                    : { type: "spring", stiffness: 300, damping: 26, delay: 0.25 + i * 0.07 }
+                }
+              >
                 <a className="stamp" href={watchUrl(toSeconds(p.timestamp))} target="_blank" rel="noopener">
                   {p.timestamp || "—"}
                 </a>
@@ -160,7 +170,7 @@ export default function Results({ d }: { d: SummarizeResult }) {
                   {p.point || ""}
                   {p.detail && <span className="pd">{p.detail}</span>}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </motion.div>
