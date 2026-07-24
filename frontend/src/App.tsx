@@ -4,6 +4,7 @@ import { AskFn } from "./QADock";
 import { Settings, initialTheme, loadSettings, persistTheme, saveSettings } from "./settings";
 import SettingsDrawer from "./SettingsDrawer";
 import Results from "./Results";
+import HowItWorks from "./HowItWorks";
 
 const LOAD_MSGS = [
   "Fetching the transcript…",
@@ -202,6 +203,8 @@ export default function App() {
         <div className="console">
           <div className="console-row">
             <span className="play-dot" aria-hidden="true">
+              <span className="ripple" />
+              <span className="ripple ripple-2" />
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
             </span>
             <input
@@ -230,6 +233,8 @@ export default function App() {
           API key in settings for premium models; it stays in <b>your browser</b>.
         </p>
       </section>
+
+      {!result && !loading && <HowItWorks />}
 
       {loading && (
         <div className="loading on">

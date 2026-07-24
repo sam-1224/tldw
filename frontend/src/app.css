@@ -23,7 +23,7 @@
     --shadow: 0 1px 2px rgba(22, 22, 29, .04), 0 8px 30px rgba(22, 22, 29, .06);
     --shadow-lift: 0 2px 4px rgba(22, 22, 29, .06), 0 18px 48px rgba(22, 22, 29, .12);
     --display: "Bricolage Grotesque", system-ui, sans-serif;
-    --body: "Inter", system-ui, sans-serif;
+    --body: "Figtree", "Inter", system-ui, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, monospace;
     --ease: cubic-bezier(.2, .7, .2, 1);
   }
@@ -112,9 +112,10 @@
     padding: 0 .08em;
   }
   .sub {
-    color: var(--ink-soft); font-size: 18px; margin: 20px auto 0;
-    max-width: 30ch;
+    color: var(--ink-soft); font-size: 18px; margin: 22px auto 0;
+    max-width: 62ch; text-wrap: balance;
   }
+  @media (max-width: 620px) { .sub { max-width: 34ch; } }
 
   /* ---------- scrubber input ---------- */
   .console {
@@ -126,9 +127,21 @@
   .play-dot {
     width: 30px; height: 30px; flex: none; border-radius: 50%;
     background: var(--marigold); display: grid; place-items: center;
-    color: #fff; box-shadow: 0 0 0 6px var(--marigold-wash);
+    color: #16161d; position: relative;
   }
-  .play-dot svg { width: 13px; height: 13px; margin-left: 1px; }
+  .play-dot svg { width: 13px; height: 13px; margin-left: 1px; position: relative; z-index: 2; }
+  /* ripple rings pulsing outward from the play icon */
+  .play-dot .ripple {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 1.5px solid var(--marigold);
+    animation: ripple 2.4s var(--ease) infinite;
+  }
+  .play-dot .ripple-2 { animation-delay: 1.2s; }
+  @keyframes ripple {
+    0%   { transform: scale(1); opacity: .7; }
+    70%  { opacity: 0; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
   #url {
     flex: 1; border: none; outline: none; background: transparent;
     font-family: var(--mono); font-size: 15px; color: var(--ink); padding: 12px 0;
@@ -386,7 +399,7 @@
     "takeaways worth moments"
     "qa qa qa"
     "transcript transcript transcript";
-  gap: 16px;
+  gap: 22px;
   align-items: start;
 }
 .bento-card {
@@ -718,4 +731,115 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   .qa-typing i { animation: none; }
+}
+
+/* ================= How it works + moving demo ================= */
+.how {
+  margin: 70px auto 0;
+  animation: rise .6s var(--ease) both;
+}
+.how-eyebrow { text-align: center; margin-bottom: 26px; }
+.how-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 40px;
+  align-items: center;
+}
+.how-steps { display: flex; flex-direction: column; gap: 22px; }
+.how-step { display: flex; gap: 16px; align-items: flex-start; }
+.how-n {
+  flex: none; font-family: var(--mono); font-weight: 700; font-size: 13px;
+  color: var(--marigold-deep); background: var(--marigold-wash);
+  width: 40px; height: 40px; border-radius: 12px;
+  display: grid; place-items: center;
+}
+.how-step h3 {
+  font-family: var(--display); font-weight: 600; font-size: 18px;
+  margin: 2px 0 4px; letter-spacing: -.01em;
+}
+.how-step p { margin: 0; color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; }
+
+/* the self-playing preview card */
+.demo-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lift), 0 0 50px rgba(242, 163, 15, .10);
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 14px;
+  min-height: 210px;
+}
+.demo-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--paper-2); border: 1px solid var(--line);
+  border-radius: 12px; padding: 8px 8px 8px 12px;
+}
+.demo-dot {
+  flex: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--marigold);
+  box-shadow: 0 0 0 4px var(--marigold-wash);
+}
+.demo-url {
+  flex: 1; font-family: var(--mono); font-size: 13px; color: var(--ink-soft);
+  white-space: nowrap; overflow: hidden;
+}
+.demo-caret {
+  display: inline-block; width: 1px; height: 13px; margin-left: 1px;
+  background: var(--marigold); vertical-align: -2px;
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret { 50% { opacity: 0; } }
+.demo-go {
+  flex: none; font-family: var(--display); font-weight: 600; font-size: 12px;
+  background: var(--marigold); color: #16161d; padding: 6px 12px; border-radius: 8px;
+}
+.demo-go.busy { background: var(--marigold-wash); color: var(--marigold-deep); }
+
+.demo-track {
+  position: relative; height: 5px; border-radius: 5px; background: var(--line);
+  overflow: visible;
+}
+.demo-fill {
+  position: absolute; inset: 0; width: 0; border-radius: 5px; background: var(--marigold);
+}
+.demo-fill.run { animation: demofill 1.7s var(--ease) forwards; }
+.demo-fill.done { width: 100%; }
+@keyframes demofill { from { width: 0; } to { width: 90%; } }
+.demo-tick {
+  position: absolute; top: 50%; width: 10px; height: 10px;
+  margin: -5px 0 0 -5px; border-radius: 50%;
+  background: var(--marigold); border: 2px solid var(--card);
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+
+.demo-body { flex: 1; display: flex; align-items: center; }
+.demo-cap { font-family: var(--mono); font-size: 13px; color: var(--ink-faint); }
+.demo-result { display: flex; flex-direction: column; gap: 9px; width: 100%; }
+.demo-tldr-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--marigold-deep);
+}
+.demo-line { height: 9px; border-radius: 5px; background: var(--line-strong); }
+.demo-line.w-90 { width: 90%; }
+.demo-line.w-70 { width: 70%; }
+.demo-chips { display: flex; gap: 6px; margin-top: 2px; }
+.demo-chips i {
+  width: 34px; height: 14px; border-radius: 999px; background: var(--marigold-wash);
+}
+
+.demo-steps-dots { display: flex; gap: 6px; justify-content: center; }
+.demo-sd {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong);
+  transition: background .3s, transform .3s var(--ease);
+}
+.demo-sd.on { background: var(--marigold); transform: scale(1.3); }
+
+@media (max-width: 760px) {
+  .how-grid { grid-template-columns: 1fr; gap: 28px; }
+  .how { margin-top: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-dot .ripple { animation: none; opacity: 0; }
+  .demo-caret, .demo-fill.run { animation: none; }
+  .demo-fill.run { width: 90%; }
 }
