@@ -401,21 +401,15 @@
 
 /* ================= Stage 2 — Highlight OS ================= */
 
-/* --- bento results grid --- */
-/* Left column (tldr/breakdown/takeaways+worth) sets the height; the moments
-   rail STRETCHES to match it and scrolls internally, so a long moment list
-   never leaves a dead gap under the left column. */
+/* --- bento results (magazine layout) --- */
+/* Vertical stack of full-width bands; the middle band is two independent
+   flex columns. align-items: flex-start means NOTHING stretches — every card
+   is exactly its content height, no empty bottoms. Columns end where their
+   content ends (a natural stagger), never a forced equal height. */
 .bento {
-  display: grid;
-  grid-template-columns: 1.15fr 1.15fr 1fr;
-  grid-template-areas:
-    "tldr tldr moments"
-    "breakdown breakdown moments"
-    "takeaways worth moments"
-    "qa qa qa"
-    "transcript transcript transcript";
+  display: flex;
+  flex-direction: column;
   gap: var(--s5);
-  align-items: stretch;
 }
 .bento-card {
   background: var(--card);
@@ -423,21 +417,37 @@
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: var(--s5) var(--s6);
-  min-height: 0; /* let grid bound heights so inner scroll can work */
 }
-.area-tldr { grid-area: tldr; }
-.area-moments { grid-area: moments; display: flex; flex-direction: column; }
-.area-breakdown { grid-area: breakdown; }
-.area-takeaways { grid-area: takeaways; }
-.area-worth { grid-area: worth; }
-.area-qa { grid-area: qa; }
-.area-transcript { grid-area: transcript; }
 
-/* moments rail: header stays put, the list scrolls within the rail height */
+.bento-mid {
+  display: flex;
+  gap: var(--s5);
+  align-items: flex-start;   /* content-height columns, no stretch */
+}
+.bento-main {
+  flex: 1.5;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+.area-moments {
+  flex: 1;
+  min-width: 0;
+  align-self: flex-start;    /* rail hugs its own content height */
+}
+.bento-pair {
+  display: flex;
+  gap: var(--s5);
+  align-items: flex-start;
+}
+.bento-pair > * { flex: 1; min-width: 0; }
+
+/* very long moment lists get a scroll cap so the rail can't run away;
+   typical videos (5-10 points) sit well under this and stay content-height */
 .area-moments .points {
   margin-bottom: 0;
-  flex: 1;
-  min-height: 0;
+  max-height: 70vh;
   overflow-y: auto;
   padding-right: var(--s2);
 }
@@ -447,11 +457,11 @@
   color: var(--tldr-ink);
   box-shadow: var(--shadow-lift), 0 0 40px rgba(242, 163, 15, .22);
   border-color: transparent;
-  margin-bottom: 0;
   padding: var(--s6);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+}
+.bento-card.tldr p:not(.section-label) {
+  margin: 0;
+  max-width: 72ch;   /* keep the one-liner readable across a wide card */
 }
 .bento-card .breakdown { margin-bottom: 0; }
 .bento-card .breakdown p:last-child { margin-bottom: 0; }
@@ -460,14 +470,10 @@
 .bento-card details.transcript { border-top: none; padding-top: 0; }
 
 @media (max-width: 880px) {
-  .bento {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "tldr" "moments" "breakdown" "takeaways" "worth" "qa" "transcript";
-  }
-  /* stacked: let the moments list flow naturally, no inner scroll box */
-  .area-moments { display: block; }
-  .area-moments .points { overflow: visible; max-height: none; }
+  .bento-mid { flex-direction: column; }
+  .bento-main, .area-moments { width: 100%; }
+  .bento-pair { flex-direction: column; }
+  .area-moments .points { max-height: none; overflow: visible; }
 }
 
 /* --- scrubber: styled tooltip on ticks --- */

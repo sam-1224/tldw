@@ -157,73 +157,81 @@ export default function Results({ d, askFn }: { d: SummarizeResult; askFn: AskFn
         )}
       </div>
 
+      {/* Magazine layout: independent column stacks, every card sized to its
+          content (align-items: flex-start, never stretched). */}
       <div className="bento">
         <motion.div {...card("tldr", "tldr")}>
           <p className="section-label">TL;DW</p>
           <p>{s.tldr || "No summary returned."}</p>
         </motion.div>
 
-        <motion.div {...card("moments")}>
-          <p className="section-label">Key moments</p>
-          <div className="points">
-            {(s.key_points ?? []).map((p, i) => (
-              <motion.div
-                className="point"
-                key={i}
-                initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: 14 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={
-                  reduced
-                    ? { duration: 0.1 }
-                    : { type: "spring", stiffness: 300, damping: 26, delay: 0.25 + i * 0.07 }
-                }
-              >
-                <a className="stamp" href={watchUrl(toSeconds(p.timestamp))} target="_blank" rel="noopener">
-                  {p.timestamp || "—"}
-                </a>
-                <p>
-                  {p.point || ""}
-                  {p.detail && <span className="pd">{p.detail}</span>}
-                </p>
+        <div className="bento-mid">
+          <div className="bento-main">
+            {!!s.breakdown?.length && (
+              <motion.div {...card("breakdown")}>
+                <p className="section-label">The breakdown</p>
+                <div className="breakdown">
+                  {s.breakdown.map((t, i) => <p key={i}>{t}</p>)}
+                </div>
               </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {!!s.breakdown?.length && (
-          <motion.div {...card("breakdown")}>
-            <p className="section-label">The breakdown</p>
-            <div className="breakdown">
-              {s.breakdown.map((t, i) => <p key={i}>{t}</p>)}
-            </div>
-          </motion.div>
-        )}
-
-        {!!s.takeaways?.length && (
-          <motion.div {...card("takeaways")}>
-            <p className="section-label">Takeaways</p>
-            <ul className="takeaways">
-              {s.takeaways.map((t, i) => <li key={i}>{t}</li>)}
-            </ul>
-          </motion.div>
-        )}
-
-        {s.worth_watching && typeof s.worth_watching.score === "number" && (
-          <motion.div {...card("worth")}>
-            <div className="worth-inner">
-              <span className="worth-score">{s.worth_watching.score}/10</span>
-              <div>
-                <p className="section-label" style={{ margin: "0 0 2px" }}>Worth watching?</p>
-                <p className="worth-reason">{s.worth_watching.reason || ""}</p>
-              </div>
-            </div>
-            {!!s.topics?.length && (
-              <div className="topics" style={{ marginTop: 14, marginBottom: 0 }}>
-                {s.topics.map((t, i) => <span className="topic" key={i}>{t}</span>)}
-              </div>
             )}
+
+            <div className="bento-pair">
+              {!!s.takeaways?.length && (
+                <motion.div {...card("takeaways")}>
+                  <p className="section-label">Takeaways</p>
+                  <ul className="takeaways">
+                    {s.takeaways.map((t, i) => <li key={i}>{t}</li>)}
+                  </ul>
+                </motion.div>
+              )}
+
+              {s.worth_watching && typeof s.worth_watching.score === "number" && (
+                <motion.div {...card("worth")}>
+                  <div className="worth-inner">
+                    <span className="worth-score">{s.worth_watching.score}/10</span>
+                    <div>
+                      <p className="section-label" style={{ margin: "0 0 2px" }}>Worth watching?</p>
+                      <p className="worth-reason">{s.worth_watching.reason || ""}</p>
+                    </div>
+                  </div>
+                  {!!s.topics?.length && (
+                    <div className="topics" style={{ marginTop: "var(--s3)", marginBottom: 0 }}>
+                      {s.topics.map((t, i) => <span className="topic" key={i}>{t}</span>)}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+          </div>
+
+          <motion.div {...card("moments")}>
+            <p className="section-label">Key moments</p>
+            <div className="points">
+              {(s.key_points ?? []).map((p, i) => (
+                <motion.div
+                  className="point"
+                  key={i}
+                  initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: 14 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={
+                    reduced
+                      ? { duration: 0.1 }
+                      : { type: "spring", stiffness: 300, damping: 26, delay: 0.25 + i * 0.07 }
+                  }
+                >
+                  <a className="stamp" href={watchUrl(toSeconds(p.timestamp))} target="_blank" rel="noopener">
+                    {p.timestamp || "—"}
+                  </a>
+                  <p>
+                    {p.point || ""}
+                    {p.detail && <span className="pd">{p.detail}</span>}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
-        )}
+        </div>
 
         <motion.div {...card("qa")}>
           <QADock d={d} askFn={askFn} onCite={flashCitation} />
