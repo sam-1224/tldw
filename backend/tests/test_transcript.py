@@ -151,3 +151,27 @@ def test_ip_block_maps_to_friendly_error(monkeypatch):
 def test_bad_url_raises():
     with pytest.raises(TranscriptError, match="bad_url"):
         get_transcript("https://vimeo.com/999")
+
+
+def test_proxy_config_none_when_unset(monkeypatch):
+    for k in ("WEBSHARE_PROXY_USERNAME", "WEBSHARE_PROXY_PASSWORD",
+              "YT_PROXY_HTTP", "YT_PROXY_HTTPS"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(transcript, "_HAS_YTA", True)
+    assert transcript._proxy_config() is None
+
+
+def test_proxy_config_webshare_from_env(monkeypatch):
+    monkeypatch.setattr(transcript, "_HAS_YTA", True)
+    monkeypatch.setenv("WEBSHARE_PROXY_USERNAME", "u")
+    monkeypatch.setenv("WEBSHARE_PROXY_PASSWORD", "p")
+    cfg = transcript._proxy_config()
+    assert cfg is not None and cfg.__class__.__name__ == "WebshareProxyConfig"
+
+
+def test_proxy_config_generic_from_env(monkeypatch):
+    monkeypatch.setattr(transcript, "_HAS_YTA", True)
+    monkeypatch.delenv("WEBSHARE_PROXY_USERNAME", raising=False)
+    monkeypatch.setenv("YT_PROXY_HTTP", "http://user:pw@host:8080")
+    cfg = transcript._proxy_config()
+    assert cfg is not None and cfg.__class__.__name__ == "GenericProxyConfig"

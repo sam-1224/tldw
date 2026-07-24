@@ -12,6 +12,7 @@ Both paths are normalised to the same shape:
 
 from __future__ import annotations
 
+import os
 import re
 import httpx
 
@@ -27,6 +28,33 @@ try:
     _HAS_YTA = True
 except Exception:  # pragma: no cover
     _HAS_YTA = False
+
+
+def _proxy_config():
+    """Optional proxy for the free path. YouTube rate-limits datacenter IPs;
+    routing through a residential proxy is the production bypass. Driven by
+    env, so it costs nothing when unset:
+      WEBSHARE_PROXY_USERNAME / WEBSHARE_PROXY_PASSWORD  (Webshare rotating), or
+      YT_PROXY_HTTP / YT_PROXY_HTTPS                     (any proxy URL).
+    """
+    if not _HAS_YTA:
+        return None
+    ws_user = os.getenv("WEBSHARE_PROXY_USERNAME")
+    ws_pass = os.getenv("WEBSHARE_PROXY_PASSWORD")
+    http_url = os.getenv("YT_PROXY_HTTP")
+    https_url = os.getenv("YT_PROXY_HTTPS")
+    try:
+        if ws_user and ws_pass:
+            from youtube_transcript_api.proxies import WebshareProxyConfig
+            return WebshareProxyConfig(proxy_username=ws_user, proxy_password=ws_pass)
+        if http_url or https_url:
+            from youtube_transcript_api.proxies import GenericProxyConfig
+            return GenericProxyConfig(
+                http_url=http_url or https_url, https_url=https_url or http_url
+            )
+    except Exception:  # pragma: no cover - lib/proxy misconfig shouldn't crash boot
+        return None
+    return None
 
 
 SUPADATA_BASE = "https://api.supadata.ai/v1"
@@ -65,7 +93,8 @@ def _from_youtube_library(video_id: str, lang: str = "en") -> tuple[list[dict], 
         # youtube-transcript-api 1.x is instance-based. .fetch() returns a
         # FetchedTranscript; .to_raw_data() gives the classic list of
         # {"text", "start", "duration"} dicts the rest of this code expects.
-        ytt_api = YouTubeTranscriptApi()
+        proxy = _proxy_config()
+        ytt_api = YouTubeTranscriptApi(proxy_config=proxy) if proxy else YouTubeTranscriptApi()
         try:
             fetched = ytt_api.fetch(video_id, languages=[lang, "en", "en-US"])
         except NoTranscriptFound:

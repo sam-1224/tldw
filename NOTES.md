@@ -1,5 +1,16 @@
 # Environmental notes
 
+- **YouTube IP rate-limit ("blocking requests from your IP")** — confirmed
+  IP-wide 2026-07-20: even a known-good video fails while oEmbed still works.
+  Environmental, not a bug; datacenter/cloud IPs and repeated calls trigger it,
+  home IPs usually don't. Bypasses, in order of effort:
+  1. Wait a few minutes (transient).
+  2. Set a Supadata key in settings (different backend, already wired).
+  3. **Residential proxy** for the free path (best for hosted/public instances)
+     — `WEBSHARE_PROXY_USERNAME`/`_PASSWORD` (Webshare rotating) or
+     `YT_PROXY_HTTP`/`YT_PROXY_HTTPS` (any proxy). See `.env.example`.
+     Wired via `transcript._proxy_config()`; costs nothing when unset.
+
 - **Non-English videos verified 2026-07-19**: Hindi-only video
   (P12Flimn_jQ) transcribes via any-language fallback (`language: "hi"`),
   summary translated to English, badge shows "captions · HI → EN".

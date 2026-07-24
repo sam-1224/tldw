@@ -138,6 +138,11 @@ node after it to file the summary somewhere.
 ## Notes & limits
 
 - Private videos can't be transcribed by any method.
+- **YouTube may rate-limit a server's IP** ("blocking requests from your IP")
+  on the free transcript path — common on cloud/datacenter hosts, rare on a
+  home IP. Fixes: wait a few minutes, add a Supadata key, or (best for a public
+  instance) set a residential proxy via `WEBSHARE_PROXY_USERNAME`/`_PASSWORD`
+  or `YT_PROXY_HTTP`/`YT_PROXY_HTTPS` — see `.env.example`.
 - Very long transcripts are trimmed before summarizing to keep token cost down
   (the UI flags when this happens).
 - Respect each provider's rate limits if you batch.
