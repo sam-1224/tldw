@@ -165,6 +165,14 @@ def _from_supadata(url: str, key: str, lang: str = "en") -> list[dict]:
     return segments
 
 
+# Small in-memory cache so re-summaries, LLM retries, and dev reloads don't
+# re-scrape YouTube — every scrape counts toward the IP rate limit.
+# ponytail: process-local dict, fine for a single instance; use Redis if you
+# run multiple workers and want a shared cache.
+_CACHE: dict[str, dict] = {}
+_CACHE_MAX = 128
+
+
 def get_transcript(
     url: str, supadata_key: str | None = None, lang: str = "en"
 ) -> dict:
@@ -182,19 +190,29 @@ def get_transcript(
     if not video_id:
         raise TranscriptError("bad_url")
 
+    cache_key = f"{video_id}:{lang}"
+    if cache_key in _CACHE:
+        return _CACHE[cache_key]
+
+    def _cache(result: dict) -> dict:
+        if len(_CACHE) >= _CACHE_MAX:
+            _CACHE.pop(next(iter(_CACHE)))  # drop oldest (FIFO)
+        _CACHE[cache_key] = result
+        return result
+
     # 1. Free library first.
     try:
         segments, language = _from_youtube_library(video_id, lang=lang)
-        return {"video_id": video_id, "segments": segments,
-                "source": "youtube-transcript-api", "language": language}
+        return _cache({"video_id": video_id, "segments": segments,
+                       "source": "youtube-transcript-api", "language": language})
     except TranscriptError as free_err:
         free_reason = str(free_err)
 
     # 2. Supadata fallback (only if a key was supplied).
     if supadata_key:
         segments = _from_supadata(url, supadata_key, lang=lang)
-        return {"video_id": video_id, "segments": segments,
-                "source": "supadata", "language": lang}
+        return _cache({"video_id": video_id, "segments": segments,
+                       "source": "supadata", "language": lang})
 
     # Nothing worked and no fallback available.
     if free_reason == "no_captions":

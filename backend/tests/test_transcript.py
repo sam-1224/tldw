@@ -10,6 +10,13 @@ from transcript import extract_video_id, get_transcript, TranscriptError
 VID = "dQw4w9WgXcQ"
 
 
+@pytest.fixture(autouse=True)
+def _clear_cache():
+    transcript._CACHE.clear()
+    yield
+    transcript._CACHE.clear()
+
+
 @pytest.mark.parametrize(
     "url",
     [
@@ -175,3 +182,20 @@ def test_proxy_config_generic_from_env(monkeypatch):
     monkeypatch.setenv("YT_PROXY_HTTP", "http://user:pw@host:8080")
     cfg = transcript._proxy_config()
     assert cfg is not None and cfg.__class__.__name__ == "GenericProxyConfig"
+
+
+def test_transcript_cached_after_first_fetch(monkeypatch):
+    calls = {"n": 0}
+
+    class API:
+        def fetch(self, video_id, languages=None):
+            calls["n"] += 1
+            return FakeFetched("en")
+
+    _patch_api(monkeypatch, API)
+    transcript._CACHE.clear()
+    url = f"https://youtu.be/{VID}"
+    a = get_transcript(url)
+    b = get_transcript(url)
+    assert a == b
+    assert calls["n"] == 1  # second call served from cache, no re-scrape
