@@ -26,6 +26,17 @@
     --body: "Figtree", "Inter", system-ui, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, monospace;
     --ease: cubic-bezier(.2, .7, .2, 1);
+
+    /* Spacing scale — 4px base, generous rhythm.
+       Whitespace system informed by Meta's Astryx design system
+       (https://astryx.atmeta.com): one consistent scale, used everywhere. */
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+    --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+
+    /* Two-tier width: narrow reading measure for hero copy,
+       wide app measure for header + results + how-it-works. */
+    --w-read: 760px;
+    --w-app: min(1200px, 94vw);
   }
 
   [data-theme="dark"] {
@@ -66,7 +77,9 @@
     min-height: 100vh;
   }
 
-  .wrap { width: min(900px, 92vw); margin: 0 auto; }
+  .wrap { width: var(--w-app); margin: 0 auto; }
+  /* hero copy sits in a narrow centered column; results/how use full app width */
+  .hero { max-width: var(--w-read); margin: 0 auto; }
 
   /* ---------- header ---------- */
   header {
@@ -97,7 +110,7 @@
   .icon-btn svg { width: 19px; height: 19px; }
 
   /* ---------- hero ---------- */
-  .hero { padding: 40px 0 8px; text-align: center; }
+  .hero { padding: var(--s8) 0 var(--s2); text-align: center; }
   .eyebrow {
     font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
     text-transform: uppercase; color: var(--marigold-deep); font-weight: 500;
@@ -213,14 +226,14 @@
   .error p { margin: 0; color: var(--ink-soft); font-size: 14px; }
 
   /* ---------- results ---------- */
-  .results { display: none; margin: 44px 0 80px; }
+  .results { display: none; margin: var(--s7) 0 var(--s9); scroll-margin-top: var(--s9); }
   .results.on { display: block; animation: rise .6s var(--ease) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
   .vid {
-    display: flex; gap: 16px; align-items: center; margin-bottom: 26px;
+    display: flex; gap: var(--s4); align-items: center; margin-bottom: var(--s5);
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 14px; box-shadow: var(--shadow);
+    padding: var(--s3); box-shadow: var(--shadow);
   }
   .vid img { width: 132px; height: 74px; object-fit: cover; border-radius: 9px; flex: none; background: var(--paper-2); }
   .vid .vt { font-family: var(--display); font-weight: 600; font-size: 17px; line-height: 1.25; }
@@ -389,47 +402,61 @@
 /* ================= Stage 2 — Highlight OS ================= */
 
 /* --- bento results grid --- */
+/* Left column (tldr/breakdown/takeaways+worth) sets the height; the moments
+   rail STRETCHES to match it and scrolls internally, so a long moment list
+   never leaves a dead gap under the left column. */
 .bento {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-columns: 1.15fr 1.15fr 1fr;
   grid-template-areas:
     "tldr tldr moments"
     "breakdown breakdown moments"
     "takeaways worth moments"
     "qa qa qa"
     "transcript transcript transcript";
-  gap: 22px;
-  align-items: start;
+  gap: var(--s5);
+  align-items: stretch;
 }
 .bento-card {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px 22px;
+  padding: var(--s5) var(--s6);
+  min-height: 0; /* let grid bound heights so inner scroll can work */
 }
 .area-tldr { grid-area: tldr; }
-.area-moments { grid-area: moments; }
+.area-moments { grid-area: moments; display: flex; flex-direction: column; }
 .area-breakdown { grid-area: breakdown; }
 .area-takeaways { grid-area: takeaways; }
 .area-worth { grid-area: worth; }
 .area-qa { grid-area: qa; }
 .area-transcript { grid-area: transcript; }
 
+/* moments rail: header stays put, the list scrolls within the rail height */
+.area-moments .points {
+  margin-bottom: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: var(--s2);
+}
+
 .bento-card.tldr {
   background: var(--tldr-bg);
   color: var(--tldr-ink);
-  box-shadow: var(--shadow-lift), 0 0 40px rgba(242, 163, 15, .25);
+  box-shadow: var(--shadow-lift), 0 0 40px rgba(242, 163, 15, .22);
   border-color: transparent;
   margin-bottom: 0;
-  padding: 24px 26px;
+  padding: var(--s6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-.bento-card .points { margin-bottom: 0; }
 .bento-card .breakdown { margin-bottom: 0; }
 .bento-card .breakdown p:last-child { margin-bottom: 0; }
 .bento-card .takeaways { margin-bottom: 0; }
-.worth-inner { display: flex; gap: 16px; align-items: center; }
+.worth-inner { display: flex; gap: var(--s4); align-items: center; }
 .bento-card details.transcript { border-top: none; padding-top: 0; }
 
 @media (max-width: 880px) {
@@ -438,6 +465,9 @@
     grid-template-areas:
       "tldr" "moments" "breakdown" "takeaways" "worth" "qa" "transcript";
   }
+  /* stacked: let the moments list flow naturally, no inner scroll box */
+  .area-moments { display: block; }
+  .area-moments .points { overflow: visible; max-height: none; }
 }
 
 /* --- scrubber: styled tooltip on ticks --- */
@@ -585,7 +615,9 @@ h1 {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shine 5.5s linear 1.4s infinite;
+  /* restraint: one shimmer pass on load, then rest — not a perpetual loop
+     competing with the scrubber (the page's signature motion) */
+  animation: shine 2.6s var(--ease) 1.2s 1 both;
 }
 @keyframes shine { to { background-position: -250% 0; } }
 
@@ -735,7 +767,8 @@ h1 {
 
 /* ================= How it works + moving demo ================= */
 .how {
-  margin: 70px auto 0;
+  margin: var(--s9) auto 0;
+  max-width: var(--w-app);
   animation: rise .6s var(--ease) both;
 }
 .how-eyebrow { text-align: center; margin-bottom: 26px; }

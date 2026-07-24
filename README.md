@@ -149,6 +149,11 @@ node after it to file the summary somewhere.
 - This is a starting point — PRs welcome for caching, batch mode, more
   providers, and a download-as-markdown button.
 
+## Credits
+
+The frontend's spacing scale and whitespace-first layout system are informed by
+Meta's open-source [Astryx](https://astryx.atmeta.com) design system.
+
 ## License
 
 MIT. See [`LICENSE`](./LICENSE).
